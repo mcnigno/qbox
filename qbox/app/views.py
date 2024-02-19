@@ -554,6 +554,6 @@ def page_not_found(e):
     )
 
 from .helpers import load_master_2, project_mass_color
-#project_mass_color()
+project_mass_color()
 db.create_all() 
-load_master_2()
+#load_master_2()

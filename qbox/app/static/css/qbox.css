@@ -1,0 +1,39 @@
+.title-row {
+    display: flex;
+    align-items: flex-end;
+}
+
+.title-icon-column {
+    margin-bottom: auto;
+    width: 60px;
+}
+
+.title-column {
+    margin-bottom: auto;
+}
+.title-text{
+    font-size: xx-large !important;
+    font-weight: 400 !important;
+    
+}
+.index-box {
+    background: #1e90ff;
+    color: white;
+}
+.index-title{
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+}
+.index-subtitle{
+    font-size: small;
+    
+    margin-top: 0px !important;
+    margin-bottom: 30px !important;
+}
+.index-login a{
+    color: white;
+}
+.jumbotron.index-table{
+    
+    height: 600px;
+}

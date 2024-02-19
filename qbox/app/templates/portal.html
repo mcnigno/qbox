@@ -1,0 +1,22 @@
+{% import 'appbuilder/general/lib.html' as lib %}
+{% extends 'appbuilder/baselayout.html' %}
+<!DOCTYPE html>
+<html lang="en">
+{% block head_js %}
+
+    <script src="https://unpkg.com/htmx.org@1.9.9"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{param1}} Portal</title>
+    {{ super() }}
+{% endblock%}
+{% block content %}
+<body>
+    <div hx-get="/api/v1/volume/1" hx-trigger="load">my div</div>
+    <!-- have a button POST a click via AJAX -->
+    <button hx-post="/clicked" hx-swap="outerHTML">
+      Click Me
+    </button>
+</body>
+{% endblock %}
+</html>

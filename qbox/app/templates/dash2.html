@@ -1,0 +1,50 @@
+
+ 
+<script>
+    var labels = {{ labels |tojson | safe }};
+    var volume_serie_data = {{ data |tojson | safe}};
+    var dataset = volume_serie_data.map(function(serie) {
+        return {
+            label: serie.label,
+            backgroundColor: serie.color,
+            data: serie.data,
+        };
+      });
+    mc.data.labels = labels
+    mc.data.datasets = dataset;
+    mc.update();
+
+    var endlife_labels = {{ volume_endlife_labels | tojson | safe }};
+    var endlife_data = {{ volume_endlife_data | tojson | safe }};
+    var dataset = endlife_data.map(function(serie) {
+        return {
+            label: serie.label,
+            backgroundColor: serie.color,
+            data: serie.data,
+        };
+      });
+    md.data.labels = endlife_labels;
+    md.data.datasets = dataset;
+    md.update();
+    
+    var vs_data = {{ vs_data |tojson | safe }};
+    mb.data = vs_data;
+    mb.update();
+
+    var vg_data = {{ vg_data |tojson | safe }};
+    mg.data = vg_data;
+    mg.update();
+
+
+    self.console.log('Chart Data Update');
+    self.console.log(mc.data.labels);
+    self.console.log(md.data.labels);
+
+
+
+//initialize table
+var tabledata = {{ le_tabledata |tojson |safe}}
+table.setData(tabledata);
+console.log(tabledata)
+
+</script>

@@ -1,0 +1,39 @@
+
+<script>
+    
+    var labels = {{ labels | tojson | safe }};
+    var data = {{ data | tojson | safe }};
+    
+    
+    mc.data.labels = [];
+    mc.data.datasets.forEach((dataset) => {
+        dataset.data = [];
+    });
+
+    mc.data.labels = labels;
+    mc.data.datasets.forEach((dataset) => {
+        dataset.data = data;
+    });
+
+    mc.update();
+    self.console.log('Chart Data Update');
+    self.console.log(mc.data.labels);
+
+    var labels = {{ volume_endlife_labels | tojson | safe }};
+    var data = {{ volume_endlife_data | tojson | safe }};
+    
+    md.data.labels = [];
+    md.data.datasets.forEach((dataset) => {
+        dataset.data = [];
+    });
+
+    md.data.labels = labels;
+    md.data.datasets.forEach((dataset) => {
+        dataset.data = data;
+    });
+
+    md.update();
+    self.console.log('Chart Data Update');
+    self.console.log(md.data.labels);
+
+</script>

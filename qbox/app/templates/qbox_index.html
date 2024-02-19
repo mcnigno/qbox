@@ -1,0 +1,108 @@
+{% extends "appbuilder/base.html" %}
+{% block content %}
+<div class="jumbotron index-box">
+  <div class="container">
+    <div class="col-sm-6">
+      <img src="{{url_for('static',filename='img/nada_logo.png')}}" alt="" width="80%">
+    </div>
+    <div class="col-sm-6">
+      <h1 class="index-title">{{_("NADA")}}</h1>
+    <h3 class="index-subtitle">NATIVE DOCUMENT ARCHIVE</h3> 
+    </div>
+     
+{% if not current_user.is_anonymous %}
+<form>
+  <div class="col-sm-6">
+    <div class="input-group" style="margin-bottom: 10px;">
+      <span class="input-group-addon" id="basic-addon1">Project</span>
+      <input class="form-control" type="search" 
+          name="project" placeholder="Filter By Project Name or Number..." 
+          hx-post="/dashboard/index" 
+          hx-trigger="input changed delay:500ms, search" 
+          hx-target="#update-tabledata" 
+          hx-indicator=".htmx-indicator"> 
+    </div>
+    
+  
+  </div>
+  <div class="col-sm-6">
+    <div class="input-group">
+      <span class="input-group-addon" id="basic-addon1">Book</span>
+      <input class="form-control" type="search" 
+          name="name" placeholder="Filter By Book Name..." 
+          hx-post="/dashboard/index" 
+          hx-trigger="input changed delay:500ms, search" 
+          hx-target="#update-tabledata" 
+          hx-indicator=".htmx-indicator"> 
+    </div>
+  </div>
+</form>
+
+{% else %}
+<div class="index-login">
+    <a href="{{appbuilder.get_url_for_login}}">
+    <i class="fa fa-fw fa-sign-in"></i>Please {{_("Login")}}</a>
+</div>
+{% endif %}
+      
+  </div>
+</div>
+
+<div class="jumbotron index-table">
+
+    <div id="index-tabledata"></div>
+      
+  
+</div>
+<div>
+  <button style="float: right; " class="btn btn-primary" onclick='table.download("csv", "data.csv");'><i class="fa-regular fa-file-excel"><span style="margin: 10px;">Download</span>  </i></button>
+</div>
+<div id="update-tabledata"></div>
+<script>
+    var tabledata = {}
+    var printIcon = function(cell, formatterParams, onRendered){ //plain text value
+      return "<i class='fa fa-print'></i>";
+    };
+    var table = new Tabulator("#index-tabledata", {
+        maxHeight:"100%",
+        rowHeight:40,
+        data:tabledata, //assign data to table
+        columns:[
+            {title:"Name", field:"Name", sorter:"string", width:650},
+            {title:"Type", field:"Type", sorter:"number", width:100},
+            {title:"Project", field:"Project", sorter:"string", width:100, cellClick:function(e, cell){console.log("cell click")},},
+            {title:"Group", field:"Group", width:100},
+            {title:"Due Date", field:"due_date", sorter:"date", hozAlign:"center", width:100,formatter:"datetime", formatterParams:{
+              inputFormat:"yyyy-MM-dd",
+              outputFormat:"dd/MM/yyyy",
+              invalidPlaceholder:"(invalid date)",
+              timezone:"America/Los_Angeles",
+            }},
+            {formatter:printIcon, width:40, hozAlign:"center", cellClick:function(e, cell){alert("Printing row data for: " + cell.getRow().getData().name)}},
+        ], //create columns from data field names
+        columnDefaults:{
+          tooltip:function(e, cell, onRendered){
+              //e - mouseover event
+              //cell - cell component
+              //onRendered - onRendered callback registration function
+              
+              var el = document.createElement("h2");
+              el.style.backgroundColor = "white";
+              el.innerText = cell.getColumn().getField() + " - " + cell.getValue(); //return cells "field - value";
+              
+              return el; 
+          },
+        }
+      
+    });
+    table.on("rowClick", function(e, row){
+      //e - the click event object
+      //row - row component
+      let url = "/volumeview/show/"+row._row.data.id
+      window.open(url, '_blank');
+      console.log('the row', row)
+      tt= row
+    });
+</script>
+
+{% endblock %}

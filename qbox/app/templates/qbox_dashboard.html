@@ -1,0 +1,274 @@
+
+{% extends "appbuilder/base.html" %}
+{% block content %}
+<div class="jumbotron">
+  <div class="container">
+    <div class="row title-row">
+      <div class="col-sm-1 title-icon-column"><img src="{{url_for('static',filename='img/Q_logo.png')}}" alt="" style="width: 40px; "></div>
+      <div class="col-sm-11 title-column" style="text-align: left; vertical-align: top;"><p class="title-text">{{_("NADA Dashboard")}}</p class="title-text"></div>
+    </div>
+    <hr>
+    <form>
+      
+        <div class="col-sm-6">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">Project</span>
+            <input class="form-control" type="search" 
+                name="project" placeholder="Filter By Project Name or Number..." 
+                hx-post="/dashboard/home" 
+                hx-trigger="input changed delay:500ms, search" 
+                hx-target="#second" 
+                hx-indicator=".htmx-indicator"> 
+          </div>
+          
+        
+        </div>
+        <div class="col-sm-6">
+          <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">Book</span>
+            <input class="form-control" type="search" 
+                name="name" placeholder="Filter By Book Name..." 
+                hx-post="/dashboard/home" 
+                hx-trigger="input changed delay:500ms, search" 
+                hx-target="#second" 
+                hx-indicator=".htmx-indicator"> 
+          </div>
+        </div>
+    </div>
+    
+    
+    
+    </form>
+    <hr>
+    <h3>Books by Document Type</h3>
+    <div>
+      <canvas id="myChart"></canvas>
+    </div>
+    <hr>
+    <div id="example-table"></div>
+    <hr>
+    <div id="dash">
+      
+
+      <div class="row">
+        <div class="col-sm-6">
+          <h3>Books by Site</h3>
+          <div class="chart-container" style="position: relative; height:400px; width:800px">
+            <canvas id="siteChart"></canvas>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <h3>Books by Group</h3>
+          <div class="chart-container" style="position: relative; height:400px; width:800px">
+            <canvas id="groupChart"></canvas>
+          </div>
+        </div> 
+      </div>
+
+    
+    
+    <div id="dash1">
+      
+      
+      
+      
+      <script>
+        
+
+        const ctx0 = document.getElementById('siteChart');
+        
+        var vs_data = {{ vs_data |tojson | safe }};
+
+        var mb = new Chart(ctx0, {
+          type: 'doughnut',
+          data: vs_data,
+          options: {
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    
+                }
+            }
+          }
+        });
+
+        const ctx3 = document.getElementById('groupChart');
+        
+        var data = {{ vg_data |tojson | safe }};
+
+        var mg = new Chart(ctx3, {
+          type: 'doughnut',
+          data: data,
+          options: {
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    
+                }
+            }
+          }
+        });
+
+      </script>
+      
+      <script>
+        console.log("The start:")
+        const ctx = document.getElementById('myChart');
+        
+        var labels = {{ labels |tojson | safe }};
+        var volume_serie_data = {{ data |tojson | safe}};
+        
+        
+        var bcolor = [];
+        var dataset = volume_serie_data.map(function(serie) {
+          let color = 'rgba(' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ',' + Math.floor(Math.random() * 256) + ', 0.5)';
+          bcolor.push(color)
+          return {
+              label: serie.label,
+              backgroundColor: serie.color,
+              data: serie.data
+              
+          };
+        });
+        console.log(bcolor)
+        
+        var mc = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels:  labels  ,
+            datasets: dataset
+          },
+          options: {
+            scales: {
+              x: {
+                stacked: true
+              },
+              y: {
+                stacked: true,
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      </script>
+    
+      <div id="tag-id"></div>
+      <h3>Books By Due Date</h3>
+        <div>
+          <canvas id="myChart2"></canvas>
+      </div>
+      <script>
+        
+      const ctx2 = document.getElementById('myChart2');
+      var endlife_labels = {{ volume_endlife_labels | tojson | safe }};
+      var endlife_data = {{ volume_endlife_data | tojson | safe }};
+
+      var dataset = endlife_data.map(function(serie) {
+        return {
+            label: serie.label,
+            backgroundColor: serie.color,
+            data: serie.data,
+        };
+      });
+    
+      var md = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels:  endlife_labels  ,
+          datasets: dataset
+        },
+        options: {
+          onClick: (event, elements, chart) => {
+            const i = elements[0].index;
+            console.log(chart)
+            if (elements[0]) {            
+               const i = elements[0].index;
+               const di = elements[0].datasetIndex;
+               alert(chart.data.labels[i] + ': ' + chart.data.datasets[di].label);
+               document.getElementById('tag-id').innerHTML = '<div hx-get="/dashboard/type/'+chart.data.labels[i] +'" hx-trigger="load">'+ i +' data</div>';
+               htmx.process(document.getElementById('tag-id'));
+               console.log(label,value);
+            }
+          },
+          plugins: {
+
+            legend: {
+                display: true
+            },
+            
+            subtitle: {
+                position: 'bottom',
+                display: true,
+                text: 'Custom Chart Subtitle'
+            },
+            title: {
+              position: 'bottom',
+              display: true,
+              text: 'Custom Chart Title'
+            }
+          },
+          scales: {
+            x: {
+              stacked: true
+
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      //initialize table
+var tabledata = {{ le_tabledata |tojson |safe}}
+var printIcon = function(cell, formatterParams, onRendered){ //plain text value
+  return "<i class='fa fa-print'></i>";
+};
+var table = new Tabulator("#example-table", {
+    rowHeight:40,
+    data:tabledata, //assign data to table
+    columns:[
+        {title:"Name", field:"Name", sorter:"string", width:650},
+        {title:"Type", field:"Type", sorter:"number", width:100},
+        {title:"Project", field:"Project", sorter:"string", width:100, cellClick:function(e, cell){console.log("cell click")},},
+        {title:"Group", field:"Group", width:100},
+        {title:"Due Date", field:"due_date", sorter:"date", hozAlign:"center", width:100,formatter:"datetime", formatterParams:{
+          inputFormat:"yyyy-MM-dd",
+          outputFormat:"dd/MM/yyyy",
+          invalidPlaceholder:"(invalid date)",
+          timezone:"America/Los_Angeles",
+        }},
+        {formatter:printIcon, width:40, hozAlign:"center", cellClick:function(e, cell){alert("Printing row data for: " + cell.getRow().getData().name)}},
+    ], //create columns from data field names
+    columnDefaults:{
+      tooltip:function(e, cell, onRendered){
+          //e - mouseover event
+          //cell - cell component
+          //onRendered - onRendered callback registration function
+          
+          var el = document.createElement("h2");
+          el.style.backgroundColor = "white";
+          el.innerText = cell.getColumn().getField() + " - " + cell.getValue(); //return cells "field - value";
+          
+          return el; 
+      },
+    }
+  
+});
+table.on("rowClick", function(e, row){
+  //e - the click event object
+  //row - row component
+  let url = "/volumeview/show/"+row._row.data.id
+  window.open(url, '_blank');
+  console.log('the row', row)
+  tt= row
+});
+      </script>
+    <div id="second"></div>
+  </div>
+  </div>
+</div>
+{% endblock %}

@@ -114,7 +114,7 @@ class Project(AuditMixin, Model):
     note = Column(Text)
     
     def __repr__(self) -> str:
-        return self.name
+        return self.code + " | " + self.name
 
 
     

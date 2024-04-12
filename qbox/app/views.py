@@ -331,8 +331,8 @@ class TypeView(ModelView):
     datamodel = SQLAInterface(Type)
     list_columns = ['id', 'name', 'retention_code','description']
     add_columns = ['account','name']
-    show_columns = ['id', 'name']
-    edit_columns = ['name']
+    show_columns = ['id', 'name', 'retention_code', 'retention_days','description']
+    edit_columns = ['name', 'retention_code', 'retention_days','description']
     
     list_title = 'Document Type'
 
@@ -379,10 +379,11 @@ from werkzeug.wsgi import FileWrapper
  
 class VolumeView(ModelView):
     datamodel = SQLAInterface(Volume)
-    list_columns = ['project.name', 'type.name','name', 'endlife_date', 'days_left']
+    list_columns = ['project.code','project.name', 'type.name','name', 'endlife_date', 'days_left']
     add_columns = ['box','project','type','group', 'name',]
     show_columns = ['box','box.section.area.site','box.section.area','box.section','project.account','project', 'type', 'group', 'name','request_by','site.country']
-    edit_columns = ['box','project','type','group', 'name',]
+    edit_columns = ['box','project','type','group', 'name','endlife_date'] 
+    
     
     label_columns = {
         'project.account': 'Account',
@@ -410,7 +411,7 @@ class VolumeView(ModelView):
         #lst2= self.datamodel.get_values(items, self.list_columns)
         
         b = write_csv(self, lst)
-        #return send_file(b, as_attachment=True, mimetype='text/csv', download_name='test.csv')
+        return send_file(b, as_attachment=True, mimetype='text/csv', download_name='test.csv')
         
         #b = BytesIO(open(csv_file.read()))
         #w = FileWrapper(b)
@@ -553,7 +554,10 @@ def page_not_found(e):
         404,
     )
 
-from .helpers import load_master_2, project_mass_color
-project_mass_color()
+from .helpers import load_master_3A, project_mass_color, load_master_30K, update_endlife, update_date2
+#project_mass_color()
 db.create_all() 
-#load_master_2()
+#load_master_3A() 
+#load_master_30K() 
+#update_endlife()  
+#update_date2()

@@ -121,17 +121,17 @@ class Project(AuditMixin, Model):
 class Volume(AuditMixin, Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(400), nullable = False)
-    box_id = Column(Integer, ForeignKey('box.id'))
-    box = relationship(Box, backref='Boxes')
-    group_id = Column(Integer, ForeignKey('group.id'))
+    box_id = Column(Integer, ForeignKey('box.id'), nullable = False)
+    box = relationship(Box, backref='Volumes')
+    group_id = Column(Integer, ForeignKey('group.id'), nullable = False)
     group = relationship(Group, backref='Volumes')
-    type_id = Column(Integer, ForeignKey('type.id'))
+    type_id = Column(Integer, ForeignKey('type.id'), nullable = False)
     type = relationship(Type, backref='Volumes')
-    project_id = Column(Integer, ForeignKey('project.id'))
+    project_id = Column(Integer, ForeignKey('project.id'), nullable = False)
     project = relationship(Project, backref='Volumes')
-    date_start = Column(Date)
-    date_end = Column(Date) 
-    activation_date = Column(Date)
+    date_start = Column(Date, nullable = False)
+    date_end = Column(Date, nullable = False) 
+    activation_date = Column(Date, nullable = False)
     endlife_date = Column(Date)
     account_number = Column(Integer)
     order_number = Column(String(20))
@@ -151,6 +151,8 @@ class Volume(AuditMixin, Model):
         return 0
     def progress(self):
         return 100 - int(self.days_left(self)) 
+    
+    
     
         
         

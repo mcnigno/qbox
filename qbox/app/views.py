@@ -56,7 +56,7 @@ class Dashboard(BaseView):
         book_search = '%%'
         if request.method == 'POST':
             if request.form['project']:
-                search_str = '%'+request.form['project']+'%'
+                search_str = request.form['project']+'%'
         if request.method == 'POST':
             book_search = '%'+request.form['name']+'%'
             
@@ -64,8 +64,8 @@ class Dashboard(BaseView):
         
         last_entries = db.session.query(Volume).join(Project
                                             ).order_by(Volume.created_on.desc()
-                                            ).filter(Project.name.like(search_str), Volume.name.like(book_search)
-                                            ).limit(100).all()
+                                            ).filter(Project.code.like(search_str), Volume.name.like(book_search)
+                                            ).limit(10).all()
         ie_tabledata = [{'Project': v.project.code,'Type': v.type.name, 'Name': v.name, 'Group': v.group.name, 'id': v.id, 'due_date': str(v.endlife_date) } for v in last_entries]
         #print(ie_tabledata)
         return self.render_template('index_table.html', ie_tabledata=ie_tabledata)
@@ -84,11 +84,11 @@ class Dashboard(BaseView):
         
         last_moves = db.session.query(Move).join(Volume, Project
                                             ).order_by(Move.created_on.desc()
-                                            ).filter(Project.name.like(search_str), Volume.name.like(book_search)
+                                            ).filter(Project.code.like(search_str), Volume.name.like(book_search)
                                             ).limit(10).all()
         last_entries = db.session.query(Volume).join(Project
                                             ).order_by(Volume.created_on.desc()
-                                            ).filter(Project.name.like(search_str), Volume.name.like(book_search)
+                                            ).filter(Project.code.like(search_str), Volume.name.like(book_search)
                                             ).limit(10).all()
         print('step1')
         le_tabledata = [{'Project': v.project.code,'Type': v.type.name, 'Name': v.name, 'Group': v.group.name, 'id': v.id, 'due_date': str(v.endlife_date) } for v in last_entries]
@@ -97,7 +97,7 @@ class Dashboard(BaseView):
         volume_group = db.session.query(func.count(Volume.id), Group.name
                                             ).join(Group, Project
                                             ).group_by(Group.name
-                                            ).filter(Project.name.like(search_str), Volume.name.like(book_search)
+                                            ).filter(Project.code.like(search_str), Volume.name.like(book_search)
                                             ).limit(100
                                             ).all()
         print('step3')
@@ -119,7 +119,7 @@ class Dashboard(BaseView):
         ).group_by(
             Site.name
         ).filter(
-            Project.name.like(search_str), Volume.name.like(book_search)
+            Project.code.like(search_str), Volume.name.like(book_search)
         ).limit(100
         ).all()
         print('step5')
@@ -142,13 +142,13 @@ class Dashboard(BaseView):
         print('step6')
         volume_serie = db.session.query(
             Type.name,
-            Project.name,
+            Project.code,
             func.count(Volume.id)
         ).join(Type, Project).group_by(
             Type.id,
             Project.id
         ).filter(
-            Project.name.like(search_str), Volume.name.like(book_search) 
+            Project.code.like(search_str), Volume.name.like(book_search) 
         ).limit(100
         ).all()
         print('step6')
@@ -156,7 +156,7 @@ class Dashboard(BaseView):
         prj_list = set()
         prj_list2 = db.session.query(Project
                                     ).join(Volume
-                                    ).filter(Project.name.like(search_str), Volume.name.like(book_search)
+                                    ).filter(Project.code.like(search_str), Volume.name.like(book_search)
                                     ).limit(100
                                     ).all()
         
@@ -183,7 +183,7 @@ class Dashboard(BaseView):
                 try:
                     data.append(e[type][project.name][0])
                 except:
-                    data.append(0)
+                    data.append(0) 
             
             volume_serie_data.append({"label": project.name, "data": data, "color": project.color})
             #volume_serie_label.append(project.name)
@@ -193,10 +193,10 @@ class Dashboard(BaseView):
         print('step8')
 
         
-        volumes_endlife = db.session.query(func.year(Volume.endlife_date), Project.name, func.count(Volume.id), Project.color 
+        volumes_endlife = db.session.query(func.year(Volume.endlife_date), Project.code, func.count(Volume.id), Project.color 
             ).join(Project
             ).group_by(func.year(Volume.endlife_date), Project.id
-            ).filter(Project.name.like(search_str), Volume.name.like(book_search)
+            ).filter(Project.code.like(search_str), Volume.name.like(book_search)
                      ).limit(100
                     ).all()
         
@@ -204,7 +204,7 @@ class Dashboard(BaseView):
         prj_list = set()
         prj_list2 = db.session.query(Project
                                     ).join(Volume
-                                    ).filter(Project.name.like(search_str), Volume.name.like(book_search)
+                                    ).filter(Project.code.like(search_str), Volume.name.like(book_search)
                                     ).limit(100
                                     ).all()
         
@@ -272,7 +272,7 @@ class Dashboard(BaseView):
         if request.method == 'POST':
             volumes = db.session.query(Type.name ,func.count(Volume.id)).join(Volume, Project).group_by(Type.name).filter(
                 or_(Type.name.like('%'+request.form['project']+'%'),
-                    Project.name.like('%'+request.form['project']+'%') )).all()
+                    Project.code.like('%'+request.form['project']+'%') )).all()
             #volumes = db.session.query(Type.name ,func.count(Volume.id)).join(Volume, Project).group_by(
             #Type.id).filter(Project.name.like(request.form['project'])).all()
             #print('++++++ààà+++++àà  POST +à+à+à +à+à --- FOR: ', request.form['project'])
@@ -282,7 +282,7 @@ class Dashboard(BaseView):
             volume_data = [x[1] for x in volumes]
             
             volumes_endlife = db.session.query(func.year(Volume.endlife_date), func.count(Volume.id)).join(Project, Type).group_by(
-                                                func.year(Volume.endlife_date)).filter(Project.name.like('%'+ request.form['project']+'%')).all()
+                                                func.year(Volume.endlife_date)).filter(Project.code.like('%'+ request.form['project']+'%')).all()
             
             #print('++++++ààà+++++àà  POST +à+à+à +à+à --- FOR: ', request.form['project'])
             #print('++++++ààà+++++àà  LEN VOLUMES ENDLIFE +à+à --- FOR: ', len(volumes_endlife))
@@ -376,20 +376,29 @@ from .helpers import write_csv
 from flask import Response, send_file
 from io import BytesIO
 from werkzeug.wsgi import FileWrapper
+from datetime import timedelta
  
 class VolumeView(ModelView):
     datamodel = SQLAInterface(Volume)
+    
+    add_title = 'Add Document'
+    show_title = 'Show Document'
+    edit_title = 'Edit Document'
+    list_title = 'List Documents'
+    
     list_columns = ['project.code','project.name', 'type.name','name', 'endlife_date', 'days_left']
-    add_columns = ['box','project','type','group', 'name',]
-    show_columns = ['box','box.section.area.site','box.section.area','box.section','project.account','project', 'type', 'group', 'name','request_by','site.country']
-    edit_columns = ['box','project','type','group', 'name','endlife_date'] 
+    add_columns = ['box','project','type','group', 'name','date_start','date_end','available','active']
+    show_columns = ['box','box.section.area.site','box.section.area','box.section','project.account','project', 'type', 'group', 'name','request_by','activation_date','available','active']
+    edit_columns = ['box','project','type','group', 'name','activation_date','available','active'] 
     
     
     label_columns = {
         'project.account': 'Account',
         'box.section.area.site': 'Site',
         'box.section.area': 'Area',
-        'box.section': 'Section'
+        'box.section': 'Section',
+        'name': 'Content'
+        
     }
     
     search_columns = ['project', 'type', 'group', 'name', 'date_start', 'date_end', 'endlife_date']
@@ -398,6 +407,7 @@ class VolumeView(ModelView):
     show_template = 'appbuilder/general/model/show_cascade.html'
     edit_template = 'appbuilder/general/model/edit_cascade.html'
     
+    #base_permissions = ['can_show','can_list']
     
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
     def muldelete(self, items):
@@ -420,17 +430,32 @@ class VolumeView(ModelView):
         
         #self.update_redirect()
         return b
+    
+    def pre_add(self, item):
+        item.activation_date = item.date_end + timedelta(days=1)
+        item.endlife_date = item.activation_date + timedelta(days=item.type.retention_days)
+        return super().pre_add(item)
+    
+    
 class BoxView(ModelView):
     datamodel = SQLAInterface(Box)
-    list_columns = ['id', 'name']
+    list_columns = ['name','section']
     add_columns = ['section','name']
-    show_columns = ['id', 'name']
-    edit_columns = ['name']
+    show_columns = ['id', 'name', 'section']
+    edit_columns = ['name', 'section']
     
     related_views = [VolumeView]
      
     show_template = 'appbuilder/general/model/show_cascade.html'
     edit_template = 'appbuilder/general/model/edit_cascade.html'
+    
+    base_order = ('name','desc')
+    search_exclude_columns= ['Volumes']
+    
+    label_columns = {
+        'name': 'Code', 
+    }
+    
     
 class SectionView(ModelView):
     datamodel = SQLAInterface(Section)
@@ -525,9 +550,16 @@ appbuilder.add_view_no_menu(MyView())
 appbuilder.add_api(VolumeApi)
 
 appbuilder.add_view(AccountView, name="Account", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings')
-appbuilder.add_view(VolumeView, name="Volume", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
+appbuilder.add_view(VolumeView, name="Documents", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
+appbuilder.add_view(BoxView, name="Box", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
+appbuilder.add_view(SiteView, name="Site", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
+appbuilder.add_view(AreaView, name="Area", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
+appbuilder.add_view(SectionView, name="Section", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
+appbuilder.add_view(TypeView, name="Type", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
+appbuilder.add_view(GroupView, name="Group", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
+appbuilder.add_view(ProjectView, name="Project", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
 
-appbuilder.add_link('Dashboard','/dashboard/home','fa fa-edit')
+#appbuilder.add_link('Dashboard','/dashboard/home','fa fa-edit')
 
 appbuilder.add_view_no_menu(GroupView)
 appbuilder.add_view_no_menu(TypeView)

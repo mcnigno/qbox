@@ -407,6 +407,8 @@ class VolumeView(ModelView):
     show_template = 'appbuilder/general/model/show_cascade.html'
     edit_template = 'appbuilder/general/model/edit_cascade.html'
     
+    base_order = ('id','desc')
+    
     #base_permissions = ['can_show','can_list']
     
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)

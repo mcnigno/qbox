@@ -65,7 +65,7 @@ class Dashboard(BaseView):
         last_entries = db.session.query(Volume).join(Project
                                             ).order_by(Volume.created_on.desc()
                                             ).filter(Project.code.like(search_str), Volume.name.like(book_search)
-                                            ).limit(10).all()
+                                            ).limit(100).all()
         ie_tabledata = [{'Project': v.project.code,'Type': v.type.name, 'Name': v.name, 'Group': v.group.name, 'id': v.id, 'due_date': str(v.endlife_date) } for v in last_entries]
         #print(ie_tabledata)
         return self.render_template('index_table.html', ie_tabledata=ie_tabledata)
@@ -85,11 +85,11 @@ class Dashboard(BaseView):
         last_moves = db.session.query(Move).join(Volume, Project
                                             ).order_by(Move.created_on.desc()
                                             ).filter(Project.code.like(search_str), Volume.name.like(book_search)
-                                            ).limit(10).all()
+                                            ).limit(1000).all()
         last_entries = db.session.query(Volume).join(Project
                                             ).order_by(Volume.created_on.desc()
                                             ).filter(Project.code.like(search_str), Volume.name.like(book_search)
-                                            ).limit(10).all()
+                                            ).limit(1000).all()
         print('step1')
         le_tabledata = [{'Project': v.project.code,'Type': v.type.name, 'Name': v.name, 'Group': v.group.name, 'id': v.id, 'due_date': str(v.endlife_date) } for v in last_entries]
         #   print(last_entries)
@@ -98,7 +98,7 @@ class Dashboard(BaseView):
                                             ).join(Group, Project
                                             ).group_by(Group.name
                                             ).filter(Project.code.like(search_str), Volume.name.like(book_search)
-                                            ).limit(100
+                                            ).limit(1000
                                             ).all()
         print('step3')
         vg_labels = [x[1] for x in volume_group] 
@@ -120,11 +120,15 @@ class Dashboard(BaseView):
             Site.name
         ).filter(
             Project.code.like(search_str), Volume.name.like(book_search)
-        ).limit(100
+        ).limit(1000
         ).all()
         print('step5')
         vs_labels = [x[1] for x in volume_site]
         vs_data = [x[0] for x in volume_site]
+        print('vs_label')
+        print(vs_labels)
+        print('vs_data')
+        print(vs_data)
         
         vs_data = {
           'labels': vs_labels,
@@ -149,7 +153,7 @@ class Dashboard(BaseView):
             Project.id
         ).filter(
             Project.code.like(search_str), Volume.name.like(book_search) 
-        ).limit(100
+        ).limit(1000
         ).all()
         print('step6')
         e = {}
@@ -157,7 +161,7 @@ class Dashboard(BaseView):
         prj_list2 = db.session.query(Project
                                     ).join(Volume
                                     ).filter(Project.code.like(search_str), Volume.name.like(book_search)
-                                    ).limit(100
+                                    ).limit(1000
                                     ).all()
         
         for i in volume_serie:
@@ -181,11 +185,11 @@ class Dashboard(BaseView):
             data = []
             for type in e:
                 try:
-                    data.append(e[type][project.name][0])
+                    data.append(e[type][project.code][0])
                 except:
                     data.append(0) 
             
-            volume_serie_data.append({"label": project.name, "data": data, "color": project.color})
+            volume_serie_data.append({"label": project.code, "data": data, "color": project.color})
             #volume_serie_label.append(project.name)
         
         #print()
@@ -197,7 +201,7 @@ class Dashboard(BaseView):
             ).join(Project
             ).group_by(func.year(Volume.endlife_date), Project.id
             ).filter(Project.code.like(search_str), Volume.name.like(book_search)
-                     ).limit(100
+                     ).limit(1000
                     ).all()
         
         e = {}
@@ -205,7 +209,7 @@ class Dashboard(BaseView):
         prj_list2 = db.session.query(Project
                                     ).join(Volume
                                     ).filter(Project.code.like(search_str), Volume.name.like(book_search)
-                                    ).limit(100
+                                    ).limit(1000
                                     ).all()
         
         for i in volumes_endlife:
@@ -229,10 +233,10 @@ class Dashboard(BaseView):
             data = []
             for year in e:
                 try:
-                    data.append(e[year][project.name][0])
+                    data.append(e[year][project.code][0])
                 except:
                     data.append(0)
-            volume_endlife_data.append({"label": project.name, "data": data, "color": project.color}) 
+            volume_endlife_data.append({"label": project.code, "data": data, "color": project.color}) 
         
         print('step10')
         #print()
@@ -271,8 +275,8 @@ class Dashboard(BaseView):
     def search(self):
         if request.method == 'POST':
             volumes = db.session.query(Type.name ,func.count(Volume.id)).join(Volume, Project).group_by(Type.name).filter(
-                or_(Type.name.like('%'+request.form['project']+'%'),
-                    Project.code.like('%'+request.form['project']+'%') )).all()
+                or_(Volume.name.like('%'+request.form['project']+'%'),
+                    Project.code.like('%'+request.form['project']+'%') )).limit(100).all()
             #volumes = db.session.query(Type.name ,func.count(Volume.id)).join(Volume, Project).group_by(
             #Type.id).filter(Project.name.like(request.form['project'])).all()
             #print('++++++ààà+++++àà  POST +à+à+à +à+à --- FOR: ', request.form['project'])
@@ -320,21 +324,33 @@ appbuilder.add_view_no_menu(Dashboard())
 
 class GroupView(ModelView):
     datamodel = SQLAInterface(Group)
-    list_columns = ['id', 'name']
+    list_columns = ['id', 'name','doc_count']
     add_columns = ['account','name']
     show_columns = ['id', 'name']
     edit_columns = ['name']
     
     list_title = 'Group / Department'
+    
+    @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
+    def muldelete(self, items):
+        self.datamodel.delete_all(items)
+        self.update_redirect()
+        return redirect(self.get_redirect())
 
 class TypeView(ModelView):
     datamodel = SQLAInterface(Type)
-    list_columns = ['id', 'name', 'retention_code','description']
+    list_columns = ['id', 'name', 'retention_code','description', 'retention_days','doc_count']
     add_columns = ['account','name']
-    show_columns = ['id', 'name', 'retention_code', 'retention_days','description']
+    show_columns = ['id', 'name', 'retention_code', 'retention_days','description','activation_on', 'security_class']
     edit_columns = ['name', 'retention_code', 'retention_days','description']
     
     list_title = 'Document Type'
+    
+    @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
+    def muldelete(self, items):
+        self.datamodel.delete_all(items)
+        self.update_redirect()
+        return redirect(self.get_redirect())
 
 
 class MoveView(ModelView):
@@ -372,7 +388,7 @@ class MoveView(ModelView):
         
         return super().pre_add(item)
 
-from .helpers import write_csv
+from .helpers import write_csv, db_to_csv
 from flask import Response, send_file
 from io import BytesIO
 from werkzeug.wsgi import FileWrapper
@@ -386,9 +402,9 @@ class VolumeView(ModelView):
     edit_title = 'Edit Document'
     list_title = 'List Documents'
     
-    list_columns = ['project.code','project.name', 'type.name','name', 'endlife_date', 'days_left']
+    list_columns = ['project.code', 'name', 'endlife_date', 'days_left']
     add_columns = ['box','project','type','group', 'name','date_start','date_end','available','active']
-    show_columns = ['box','box.section.area.site','box.section.area','box.section','project.account','project', 'type', 'group', 'name','request_by','activation_date','available','active']
+    show_columns = ['id','box.id','box','box.section.area.site','box.section.area','box.section','project.account','project', 'type', 'group', 'name','request_by','date_start','date_end','activation_date','endlife_date','available','active']
     edit_columns = ['box','project','type','group', 'name','activation_date','available','active'] 
     
     
@@ -433,6 +449,23 @@ class VolumeView(ModelView):
         #self.update_redirect()
         return b
     
+    @action("db_to_csv","Export All DB", icon= "fa-rocket", single=False)
+    def db_to_csv(self, items):
+        self.update_redirect()
+        csv_file = db_to_csv()
+        #return send_file('./static/downloads/output.csv', as_attachment=True, download_name='sal.csv')
+        return csv_file
+    
+    @action(name="test",text= "Export Search", icon=  "fa-rocket" , single=False)
+    def test(self, items):
+        self.update_redirect()
+        lst = self.datamodel.query(self._filters)
+        print(lst)
+        print(self._filters)
+        print(self._base_filters)
+        input('Look at this...')
+        return write_csv(lst)
+    
     def pre_add(self, item):
         item.activation_date = item.date_end + timedelta(days=1)
         item.endlife_date = item.activation_date + timedelta(days=item.type.retention_days)
@@ -441,10 +474,10 @@ class VolumeView(ModelView):
     
 class BoxView(ModelView):
     datamodel = SQLAInterface(Box)
-    list_columns = ['name','section']
+    list_columns = ['name','section.area.site','section.area' ,'active']
     add_columns = ['section','name']
-    show_columns = ['id', 'name', 'section']
-    edit_columns = ['name', 'section']
+    show_columns = ['id', 'name','section.area.site','section.area' , 'section','active']
+    edit_columns = ['name', 'section','active']
     
     related_views = [VolumeView]
      
@@ -456,14 +489,22 @@ class BoxView(ModelView):
     
     label_columns = {
         'name': 'Code', 
+        'section.area': 'Area',
+        'section.area.site': 'Site'
     }
+    
+    @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
+    def muldelete(self, items):
+        self.datamodel.delete_all(items)
+        self.update_redirect()
+        return redirect(self.get_redirect())
     
     
 class SectionView(ModelView):
     datamodel = SQLAInterface(Section)
-    list_columns = ['id', 'name']
+    list_columns = ['id', 'name', 'area', 'box_count'] 
     add_columns = ['area','name']
-    show_columns = ['id', 'name']
+    show_columns = ['id', 'name', 'area','area.site','area.site.id']
     edit_columns = ['name']
     
     related_views = [BoxView]
@@ -471,12 +512,22 @@ class SectionView(ModelView):
     show_template = 'appbuilder/general/model/show_cascade.html'
     edit_template = 'appbuilder/general/model/edit_cascade.html'
  
-
+    label_columns = {
+        'name': 'Scaffale', 
+        'area.site': 'Site' 
+    }
+    
+    @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
+    def muldelete(self, items):
+        self.datamodel.delete_all(items)
+        self.update_redirect()
+        return redirect(self.get_redirect())
+    
 class AreaView(ModelView):
     datamodel = SQLAInterface(Area)
-    list_columns = ['id', 'name']
+    list_columns = ['id', 'name','site' , 'box_count']
     add_columns = ['site','name']
-    show_columns = ['id', 'name']
+    show_columns = ['id', 'name','site','site.id']
     edit_columns = ['name']
     
     related_views = [SectionView]
@@ -484,20 +535,30 @@ class AreaView(ModelView):
     show_template = 'appbuilder/general/model/show_cascade.html'
     edit_template = 'appbuilder/general/model/edit_cascade.html'
     
+    @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
+    def muldelete(self, items):
+        self.datamodel.delete_all(items)
+        self.update_redirect()
+        return redirect(self.get_redirect())
 
 class SiteView(ModelView):
     datamodel = SQLAInterface(Site)
-    list_columns = ['id', 'name']
+    list_columns = ['id', 'name', 'box_count']
     add_columns = ['account','name']
     show_columns = ['id', 'name']
     edit_columns = ['name']
     
     related_views = [AreaView]
+    base_order = ('name','desc')
      
     show_template = 'appbuilder/general/model/show_cascade.html'
     edit_template = 'appbuilder/general/model/edit_cascade.html'
     
-
+    @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
+    def muldelete(self, items):
+        self.datamodel.delete_all(items)
+        self.update_redirect()
+        return redirect(self.get_redirect())
 
 class ProjectView(ModelView):
     datamodel = SQLAInterface(Project)
@@ -506,7 +567,12 @@ class ProjectView(ModelView):
     show_columns = ['id', 'name', 'color']
     edit_columns = ['name', 'color']
 
-
+    @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
+    def muldelete(self, items):
+        self.datamodel.delete_all(items)
+        self.update_redirect()
+        return redirect(self.get_redirect())
+    
 class AccountView(ModelView):
     datamodel = SQLAInterface(Account)
     list_columns = ['id', 'name']
@@ -519,7 +585,12 @@ class AccountView(ModelView):
     show_template = 'appbuilder/general/model/show_cascade.html'
     edit_template = 'appbuilder/general/model/edit_cascade.html'
 
-
+    @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
+    def muldelete(self, items):
+        self.datamodel.delete_all(items)
+        self.update_redirect()
+        return redirect(self.get_redirect())
+    
 class VolumeApi(ModelRestApi):
     datamodel = SQLAInterface(Volume)
     resource_name = 'volume'
@@ -561,7 +632,7 @@ appbuilder.add_view(TypeView, name="Type", icon="fa fa-edit", category_icon='fa 
 appbuilder.add_view(GroupView, name="Group", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
 appbuilder.add_view(ProjectView, name="Project", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
 
-#appbuilder.add_link('Dashboard','/dashboard/home','fa fa-edit')
+appbuilder.add_link('Dashboard','/dashboard/home','fa fa-edit')
 
 appbuilder.add_view_no_menu(GroupView)
 appbuilder.add_view_no_menu(TypeView)
@@ -589,9 +660,17 @@ def page_not_found(e):
     )
 
 from .helpers import load_master_3A, project_mass_color, load_master_30K, update_endlife, update_date2
+from .helpers import active_box, notfound_box, load_notfound, update_position, update_desc, load_volumes
 #project_mass_color()
 db.create_all() 
 #load_master_3A() 
 #load_master_30K() 
 #update_endlife()  
 #update_date2()
+#active_box()  
+#notfound_box()
+#load_notfound()
+#update_position() 
+#update_desc()
+#load_volumes()
+

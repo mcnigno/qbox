@@ -4,6 +4,9 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime, D
 from sqlalchemy.orm import relationship
 from flask_appbuilder.models.decorators import renders 
 from datetime import datetime
+from sqlalchemy.orm.session import object_session
+
+
 """
 
 You can use the extra Flask-AppBuilder fields and Mixin's
@@ -40,6 +43,10 @@ class Site(AuditMixin, Model):
     
     def __repr__(self) -> str:
         return self.name
+    
+    def box_count(self):
+        session = object_session(self)
+        return session.query(Box).join(Section, Area, Site).filter(Site.id == self.id).count()
 
 class Area(AuditMixin, Model):
     id = Column(Integer, primary_key=True)
@@ -51,6 +58,9 @@ class Area(AuditMixin, Model):
     
     def __repr__(self) -> str:
         return self.name
+    def box_count(self):
+        session = object_session(self)
+        return session.query(Box).join(Section, Area).filter(Area.id == self.id).count()
     
 class Section(AuditMixin, Model):
     id = Column(Integer, primary_key=True)
@@ -62,6 +72,12 @@ class Section(AuditMixin, Model):
     
     def __repr__(self) -> str:
         return self.name
+    
+    def box_count(self):
+        session = object_session(self)
+        return session.query(Box).filter(Box.section_id == self.id).count()
+   
+        
     
     
 class Box(AuditMixin, Model):
@@ -75,6 +91,8 @@ class Box(AuditMixin, Model):
     def __repr__(self) -> str:
         return self.name
     
+    
+    
 class Group(AuditMixin, Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable = False)
@@ -85,6 +103,9 @@ class Group(AuditMixin, Model):
     
     def __repr__(self) -> str:
         return self.name
+    def doc_count(self):
+        session = object_session(self)
+        return session.query(Volume).join(Group).filter(Group.id == self.id).count()
 
 class Type(AuditMixin, Model):
     id = Column(Integer, primary_key=True)
@@ -102,6 +123,9 @@ class Type(AuditMixin, Model):
     
     def __repr__(self) -> str:
         return self.name
+    def doc_count(self):
+        session = object_session(self)
+        return session.query(Volume).join(Type).filter(Type.id == self.id).count()
     
 class Project(AuditMixin, Model):
     id = Column(Integer, primary_key=True)

@@ -228,6 +228,7 @@ var printIcon = function(cell, formatterParams, onRendered){ //plain text value
   return "<i class='fa fa-print'></i>";
 };
 var table = new Tabulator("#example-table", {
+    maxHeight:800,
     rowHeight:40,
     data:tabledata, //assign data to table
     columns:[

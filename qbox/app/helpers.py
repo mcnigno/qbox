@@ -10,12 +10,13 @@ def read_csv():
 from io import BytesIO
 from werkzeug.wsgi import FileWrapper
 
-def write_csv(self, query):
-    with BytesIO() as outfile:
+def write_csv(query):
+    with open('app/static/downloads/result.csv','w') as outfile:
         outcsv = csv.writer(outfile)
-        print(query)
+        #print(query)
         for el in query[1]:
-            print(el)
+            print(type(el), el)
+            #input('look here')
             outcsv.writerow([el.box.id, 
                   el.box.section.area.site.city,
                   el.box.section.area.site.country,
@@ -43,9 +44,10 @@ def write_csv(self, query):
                   
                   ])
         #b = BytesIO(open(outfile,'rb'))
-        outfile.seek(0)
+        #outfile.seek(0)
+        #outfile.close()
            
-    return outfile
+    return send_file('static/downloads/result.csv', as_attachment=True, download_name='result.csv')
     
 
 from random import choice
@@ -285,6 +287,32 @@ def load_master_2():
     for e in errors:
         print(e)    
                    
+'''
+2500	2554		31/12/00
+2001	2499		31/12/08
+1920	2000		31/12/00
+1760	1919		31/12/00
+1436	1759		31/12/90
+1001	1435		31/12/80
+'''
+def activation_date(prj_code):
+    dates = [
+        [2500,2554,datetime(2000,12,31)],
+        [2001,2499,datetime(2008,12,31)],
+        [1760,2000,datetime(2000,12,31)],
+        [1436,1759,datetime(1990,12,31)],
+        [1401,1435,datetime(1990,12,31)]
+    ]
+    for date in dates:
+        try:
+            if prj_code >= date[0] and prj_code <= date[1]:
+                return date[2]
+            else:
+                return datetime(2024,2,28)
+        except:
+            return datetime(2024,2,28)
+            
+
 
 def load_master_3A():
     wb = load_workbook('app/xlsx/master_5.xlsx', data_only=True)
@@ -295,6 +323,8 @@ def load_master_3A():
 
     for row in ws.iter_rows(min_row=3):
         try:
+            s_date = activation_date(row[11].value or 10)
+            
             count += 1
             box_id = row[0].value
             city = row[3].value
@@ -303,15 +333,15 @@ def load_master_3A():
             codice = row[6].value or 'ToBeDefined'
             periodo_cons = row[7].value
             descrizione_code = row[8].value or 'ToBeDefined'
-            date_start = row[9].value or None
-            date_end = row[10].value or None
+            date_start = s_date
+            date_end = s_date
             progetto = row[11].value or 'ToBeDefined'
             nome_progetto = row[12].value or 'ToBeDefined'
             description = row[13].value or 'ToBeDefined'
             rif_attivazione = row[14].value or None
-            data_attivazione = row[15].value  or None# date_end + 1 gg
+            data_attivazione = s_date# date_end + 1 gg
             gg_conservazione = row[16].value or None
-            data_distruzione = row[17].value or None# data_attivazione + gg_conservazione
+            data_distruzione = s_date# data_attivazione + gg_conservazione
             livello_sicurezza = row[18].value or 'ToBeDefined'
             
             numero_conto = row[19].value or None
@@ -356,7 +386,8 @@ def load_master_3A():
                 area = Area(name = stanza, site= site, created_by_fk = 1, changed_by_fk = 1)
             db.session.add(area)    
             
-            section = db.session.query(Section).filter(Section.name == scaffale).first()
+            section = db.session.query(Section).join(Area).filter(Section.name == scaffale,
+                                                       Area.name == stanza).first()
             if not section:
                 section = Section(name = scaffale, area= area, created_by_fk = 1, changed_by_fk = 1)
             db.session.add(section)
@@ -570,6 +601,7 @@ def load_master_30K():
 
     for row in ws.iter_rows(min_row=3):
         try:
+            s_date = activation_date(row[3].value or 10)
             print('LOAD MASTER 30K - 2')
             count += 1
             box_id = row[0].value
@@ -579,15 +611,15 @@ def load_master_30K():
             codice = row[11].value or 'ToBeDefined'
             periodo_cons = row[12].value or 'ToBeDefined'
             descrizione_code = row[13].value or 'ToBeDefined'
-            date_start = None
-            date_end = None
+            date_start = s_date
+            date_end = s_date
             progetto = row[3].value or 'ToBeDefined'
             nome_progetto = 'ToBeDefined'
             description = row[8].value or "ND " + ' Vol: ' + row[9].value or "ND " + " " + row[10].value or 'ToBeDefined'
             rif_attivazione = 'ToBeDefined'
-            data_attivazione = None # date_end + 1 gg
+            data_attivazione = s_date
             gg_conservazione = 0
-            data_distruzione = None # data_attivazione + gg_conservazione
+            data_distruzione = s_date
             livello_sicurezza = 'ToBeDefined'
             
             numero_conto = None
@@ -630,16 +662,21 @@ def load_master_30K():
                 area = Area(name = stanza, site= site, created_by_fk = 1, changed_by_fk = 1)
             db.session.add(area)    
             
-            section = db.session.query(Section).filter(Section.name == scaffale).first()
+            section = db.session.query(Section).join(Area).filter(Section.name == scaffale,
+                                                       Area.name == stanza).first()
+            
             if not section:
+                print(box_id,'New SECTION')
                 section = Section(name = scaffale, area= area, created_by_fk = 1, changed_by_fk = 1)
             db.session.add(section)
             
+            print('BOX ADD - 1 section', section.name, section.area)
             box = db.session.query(Box).filter(Box.name == box_id).first()
             if not box:
+                print(box_id,'New BOX')
                 box = Box(name = box_id, section= section, created_by_fk = 1, changed_by_fk = 1)
             db.session.add(box)
-                
+            print(box_id,'BOX ADDED', box.name, section.name)    
             group = db.session.query(Group).filter(Group.name == dipartimento).first()
             if not group:
                 group = Group(name = dipartimento, account= account, created_by_fk = 1, changed_by_fk = 1)
@@ -711,60 +748,10 @@ def project_mass_color():
     db.session.commit()
 
 from datetime import timedelta
-def update_endlife():
-    
-    # update activation date
-    dates = [
-        [2500,2554,datetime(2000,12,31)],
-        [2001,2499,datetime(2008,12,31)],
-        [1760,2000,datetime(2000,12,31)],
-        [1436,1759,datetime(1990,12,31)],
-        [1401,1435,datetime(1990,12,31)]
-    ] 
-
-    for s in dates:    
-        volumes = db.session.query(Volume).join(Project).filter(
-            Project.code >= s[0],
-            Project.code <= s[1],
-            Volume.activation_date == None
-        ).all()
-        if volumes:
-            for v in volumes:
-                print(v.id, v.project, v.activation_date, v.changed_by_fk)
-                v.activation_date = s[2]
-                v.changed_by_fk = '1'
-                print(v.id, v.project, v.activation_date, v.changed_by_fk)
-            try:
-                db.session.commit()
-            except Exception as e:
-                print(e)
-                db.session.rollback()
-                break
-    
-    # update activation date for all other empty date with 29 feb 2024
-    print('-* -*- *- *- *- * -* - *- * -* - * -* UPDATE NULL ACTIVATION DATE')
-    volumes = db.session.query(Volume).filter(
-        Volume.activation_date == None
-    ).all()
-    print('len of volumes:', len(volumes))
-    if volumes:
-            for v in volumes:
-                print(v.id, v.project, v.activation_date, v.changed_by_fk)
-                v.activation_date = datetime(2024,2,29)
-                v.changed_by_fk = '1'
-                print(v.id, v.project, v.activation_date, v.changed_by_fk)
-            try:
-                db.session.commit()
-            except Exception as e:
-                print(e)
-                db.session.rollback()
-                
-                
+def update_endlife():            
     # update endlife date
     print('**** * * * * * * update endlife date')
-    volumes = db.session.query(Volume).filter(
-        Volume.endlife_date == None
-    ).all()
+    volumes = db.session.query(Volume).all()
     print('len volumes:', len(volumes))
     count = 0
     if volumes:
@@ -773,12 +760,13 @@ def update_endlife():
             days = v.type.retention_days
             v.endlife_date = v.activation_date + timedelta(days=days)
             v.changed_by_fk = '1'
-        try:
-            db.session.commit()
             print(count,v.id, v.activation_date, v.endlife_date)
-        except Exception as e:
-                print(e)
-                db.session.rollback()
+    try:
+        db.session.commit()
+        
+    except Exception as e:
+            print(e)
+            db.session.rollback()
                 
             
 
@@ -802,3 +790,550 @@ def update_date2():
      
         
             
+def active_box():
+    tot = 26467
+    count = 0
+    not_found = []
+    with open('app/xlsx/act_box.csv') as file:
+        for code in file:
+            count += 1
+            code = code.strip()
+            
+            print('Code:',code, type(code), len(code),str(count) +'/' + str(tot))
+            box = db.session.query(Box).filter(Box.name == code, Box.active == False).first()
+            if box:
+                box.active = True
+                box.changed_by_fk = '1'
+                try:
+                    db.session.commit()
+                except Exception as e:
+                    print(e)
+                    db.session.rollback()
+            else:
+                print(code, 'Not Found')
+                not_found.append([code])
+    print('NOT FOUND LIST')
+    print(not_found)       
+
+
+def notfound_box():
+    tot = 26467
+    count = 0
+    not_found = []
+    with open('app/xlsx/act_box.csv') as file:
+        for code in file:
+            count += 1
+            code = code.strip()
+            
+            print('Code:',code,str(count) +'/' + str(tot))
+            box = db.session.query(Box).filter(Box.name == code).first()
+            if box:
+                print(box, 'found')
+                if box.active == False:
+                    print(' ++++++++++ + + + + + + + +++++ BOX INACTIVE FOUND')
+                    box.active = True
+                    box.changed_by_fk = '1'
+                    db.session.commit()
+                
+            else:
+                print(code, 'Not Found')
+                not_found.append([code])
+          
+    with open('nada_notfound2.csv','w') as f:
+        writer = csv.writer(f)
+        writer.writerows(not_found)           
+        
+
+
+
+def load_notfound():
+    count = 0
+    errors = []
+    
+    with open('nada_notfound2.csv') as csv:
+        for code in csv:
+            count += 1
+            code = code.strip()
+            
+            with open('app/xlsx/archivio29-04-2024.csv') as csv:
+                for line in csv:
+                    line_lst = line.split(';')
+                    
+                    if line_lst[0] == code:
+                        try:
+                            if line_lst[3]:
+                            # è un volume
+                            
+                                s_date = activation_date(line_lst[3])
+                                
+                                count += 1
+                                box_id = code
+                                city = 'Rome'
+                                country = 'Italy'
+                                dipartimento = line_lst[4] or 'ToBeDefined'
+                                codice = 'ToBeDefined'
+                                periodo_cons = 'ToBeDefined'
+                                descrizione_code = 'ToBeDefined'
+                                date_start = s_date
+                                date_end = s_date
+                                progetto = line_lst[3]
+                                nome_progetto = 'ToBeDefined'
+                                description = " - ".join(line_lst[3:])
+                                rif_attivazione = None
+                                data_attivazione = s_date# date_end + 1 gg
+                                gg_conservazione = None
+                                data_distruzione = s_date# data_attivazione + gg_conservazione
+                                livello_sicurezza = 'ToBeDefined'
+                                
+                                numero_conto =  None
+                                commessa = None
+                                
+                                archivio = line_lst[1]
+                                
+                                richiedente = None
+                                data_ritiro = None
+                                move_to = None
+                                move_date = None
+                            
+                                stanza = 'ToBeDefined'
+                                scaffale = 'ToBeDefined'
+                            
+                    
+                                account = db.session.query(Account).filter(Account.name == 'TPIT').first()
+                                if not account:
+                                    account = Account(name = 'TPIT', created_by_fk = 1, changed_by_fk = 1)
+                                db.session.add(account)
+                                
+                                project = db.session.query(Project).filter(Project.code == progetto).first()
+                                if not project:
+                                    project = Project(name = nome_progetto, code = progetto, account= account, created_by_fk = 1, changed_by_fk = 1)
+                                db.session.add(project)
+                                
+                                site = db.session.query(Site).filter(Site.name == archivio).first()
+                                if not site:
+                                    site = Site(name = archivio, country=country, city=city, address='ND', account= account, created_by_fk = 1, changed_by_fk = 1)
+                                db.session.add(site)
+                                    
+                                area = db.session.query(Area).filter(Area.name == stanza).first()
+                                if not area:
+                                    area = Area(name = stanza, site= site, created_by_fk = 1, changed_by_fk = 1)
+                                db.session.add(area)    
+                                
+                                section = db.session.query(Section).join(Area).filter(Section.name == scaffale,
+                                                                        Area.name == stanza).first()
+                                if not section:
+                                    section = Section(name = scaffale, area= area, created_by_fk = 1, changed_by_fk = 1)
+                                db.session.add(section)
+                                
+                                box = db.session.query(Box).filter(Box.name == box_id).first()
+                                if not box:
+                                    box = Box(name = box_id, 
+                                              section= section,
+                                              active = True, 
+                                              created_by_fk = 1, 
+                                              changed_by_fk = 1)
+                                db.session.add(box)
+                                    
+                                group = db.session.query(Group).filter(Group.name == dipartimento).first()
+                                if not group:
+                                    group = Group(name = dipartimento, account= account, created_by_fk = 1, changed_by_fk = 1)
+                                db.session.add(group)
+                                
+                                type = db.session.query(Type).filter(Type.name == codice).first()
+                                if not type:
+                                    type = Type(name = codice, 
+                                                account= account,
+                                                retention_code = periodo_cons,
+                                                description = descrizione_code,
+                                                activation_on = rif_attivazione,
+                                                retention_days = gg_conservazione,
+                                                security_class = livello_sicurezza,
+                                                created_by_fk = 1, 
+                                                changed_by_fk = 1)
+                                db.session.add(type)
+                                
+                                volume = db.session.query(Volume).filter(
+                                    Volume.name == description,
+                                    Volume.box == box
+                                    ).first()
+                                if not volume:
+                                    volume = Volume(name = description,
+                                                    project = project,
+                                                    box = box,
+                                                    group = group,
+                                                    type = type,
+                                                    date_start =date_start,
+                                                    date_end = date_end,
+                                                    activation_date = data_attivazione,
+                                                    endlife_date = data_distruzione,
+                                                    account_number = numero_conto,
+                                                    order_number = commessa,
+                                                    request_by = richiedente,
+                                                    request_on = data_ritiro,
+                                                    created_by_fk = 1, 
+                                                    changed_by_fk = 1
+                                                    )
+                                print(count, str(volume.name))
+                                db.session.add(volume)
+                                
+                            try:    
+                            
+                                db.session.commit()
+                            except Exception as e:
+                                #row[30] = str(e)
+                                db.session.rollback() 
+                                print(e,'         *-*-*-*-*-*-*-*-  ERROR *-*-*-*-*-*-')
+                                errors.append((count+2,code, e))
+                                #pass
+                                break
+                        
+                        except Exception as e:
+                            print('EXCEPTION PROJECT')
+                            pass
+                
+            print('')
+            print('         *-*-*-*-*-*-*-*-  LIST ERRORS *-*-*-*-*-*-')               
+            for e in errors:
+                print(e) 
+                
+                
+def update_position():
+    
+    count = 0
+    errors = [] 
+            
+    with open('app/xlsx/box_position.csv') as csv:
+        for line in csv:
+            count += 1
+            try:
+                box_code, box_site, box_area, box_section = line.split(';')
+                print(count, box_code, box_site, box_area, box_section)
+                
+                box = db.session.query(Box).filter(Box.name == box_code).first()
+                if box:
+                    site = db.session.query(Site).filter(Site.name == box_site).first()
+                    if not site:
+                        account = db.session.query(Account).filter(Account.name == 'TPIT').first()
+                        site = Site(name = box_site, country='Italy', city='Rome', address='ND', account= account, created_by_fk = 1, changed_by_fk = 1)
+                        db.session.add(site)
+                            
+                    area = db.session.query(Area).join(Site).filter(Area.name == box_area, Site.name == box_site).first()
+                    if not area:
+                        area = Area(name = box_area, site= site, created_by_fk = 1, changed_by_fk = 1)
+                        db.session.add(area)    
+                        
+                    section = db.session.query(Section).join(Area, Site).filter(
+                                                    Section.name == box_section,
+                                                    Site.name == box_site,
+                                                    Area.name == box_area).first()
+                    if not section:
+                        section = Section(name = box_section, area= area, created_by_fk = 1, changed_by_fk = 1)
+                        db.session.add(section)
+                        #db.session.flush()
+                    hold_section = box.section
+                    
+                    #area.site = site
+                    #section.area = area
+                    box.section = section
+                    
+                    #area.changed_by_fk = '1'
+                    #section.changed_by_fk = '1'
+                    box.changed_by_fk = '1'
+                    print('| SECTION CHANGE:', box.id,box.name,'-- from: ',hold_section ,'to: ',box.section)
+
+                    db.session.add(box)
+                    db.session.commit()
+                
+                else:
+                    errors.append([box_code, 'NOT FOUND'])       
+                    
+            except Exception as e:
+                print(e)
+                errors.append(e)
+                i = input('Something Happen... enter to continue or b to break -> ')
+                if i == 'b':
+                    break
+                
+    
+    print('*-*-* -* -* -* - * -* - * -*  ERRORS -*-* * - * - -- * * - -* * - * ')
+    for error in errors:
+        print(error)      
+            
+import os         
+def db_to_csv():
+        
+    # MySQL connection information
+    mysql_host = 'your_host'
+    mysql_user = 'root'
+    mysql_password = 'lollipop300777'
+    mysql_database = 'qbox5'
+
+    # Define your SQL query
+    sql_query = '''
+    select
+	volume.id,
+    box.name as Box_Code,
+    section.name as Scaffale,
+    area.name as Archivio,
+    
+    site.city,
+    site.country,
+    group.name,
+    type.name as Codice_Archivio,
+    type.retention_code as Conservazione,
+    type.description as Descrizione_Codice,
+	volume.date_start as Data_Da,
+    volume.date_end as Data_A,
+    project.code as Project_Code,
+    project.name as Project_Name,
+   
+    volume.name as Descrizione,
+    
+    type.activation_on as Rif_Attivazione,
+    volume.activation_date as Activation_Date,
+    type.retention_days as Retention_Days,
+    volume.endlife_date as Data_Distruzione,
+    type.security_class as Livello_Sicurezza,
+    volume.account_number as Numero_Conto
+    
+    
+
+from qbox5.volume
+join qbox5.box on volume.box_id = box.id
+join qbox5.section on box.section_id = section.id
+join qbox5.area on section.area_id = area.id
+join qbox5.site on area.site_id = site.id
+join qbox5.group on volume.group_id = group.id
+join qbox5.type on volume.type_id = type.id
+join qbox5.project on volume.project_id = project.id
+    
+'''
+    
+    '''
+    # query for sal
+    
+    * aggiungere lo user del commento e gli user che hanno lavorato i task
+    * prevedere la possibilità di avere questo formato per user
+    * fare il trim del nome del deliverable
+    * considerare inclusione pending
+    *  
+    
+    select isa.projecttask.name as activity, isa.deliverable.name as deliverable, sum(isa.task.duration) as duration, group_concat(isa.comments.text) as note
+    from isa.task
+
+    join isa.deliverable on isa.task.deliverable_id = isa.deliverable.id
+    join isa.projecttask on isa.deliverable.projecttask_id = isa.projecttask.id
+    left join isa.comments on isa.task.id = isa.comments.task_id
+
+    WHERE startDate BETWEEN '2013-03-12 00:00:00' AND '2013-03-12 23:59:59'
+    AND endDate BETWEEN '2013-03-12 00:00:00' AND '2013-03-12 23:59:59'
+  
+    group by isa.projecttask.name, isa.deliverable.name
+    '''
+
+    # Define the output CSV file path
+    output_csv_file = 'app/static/downloads/output.csv' 
+
+    # Use the mysqldump command to execute the query and save the result as a CSV file
+    #command = f"mysql -h {mysql_host} -u {mysql_user} -p{mysql_password} {mysql_database} -e \"{sql_query}\" > {output_csv_file}"
+    command = f"mysql -u {mysql_user} -p{mysql_password} {mysql_database} -e \"{sql_query}\" > {output_csv_file}"
+    
+    # Execute the command
+    os.system(command)
+
+    print(f"Query result has been saved to {output_csv_file}")
+    return send_file('static/downloads/output.csv', as_attachment=True, download_name='result.csv')
+
+
+
+def update_desc():
+    
+    count = 0
+    errors = [] 
+            
+    with open('app/xlsx/update_desc.csv') as csv:
+        for line in csv:
+            count += 1
+            try:
+                vol_id, box_code, vol_name = line.split(';')
+                print(count, vol_id, box_code, vol_name)
+                
+                v = db.session.query(Volume).get(vol_id)
+                if v:
+                    print('Hold:',v.name,'New:',vol_name)
+                    v.name = vol_name
+                    v.changed_by_fk = '1'
+                    
+                    db.session.add(v)
+                    db.session.commit()
+                
+                else:
+                    errors.append([box_code, 'NOT FOUND'])       
+                    
+            except Exception as e:
+                print(e)
+                errors.append(e)
+                i = input('Something Happen... enter to continue or b to break -> ')
+                if i == 'b':
+                    break
+                
+    
+    print('*-*-* -* -* -* - * -* - * -*  ERRORS -*-* * - * - -- * * - -* * - * ')
+    for error in errors:
+        print(error)  
+        
+        
+def load_volumes(): 
+    count = 0
+    errors = []
+    boxes = db.session.query(Box).all()
+    if boxes:
+        for box in boxes:
+            count += 1
+            code = box.name
+            
+            with open('app/xlsx/archivio29-04-2024.csv') as csv:
+                for line in csv:
+                    line_lst = line.split(';')
+                    #print('db_Code',code)
+                    #print('a_code',line_lst[0])
+                    #print('line',line_lst)
+                    #input('look here')
+                    if line_lst[0] == code:
+                        #print('Code Match')
+                        try:
+                            if line_lst[2] == '':
+                                #print('Is a Volume')
+                            # è un volume
+
+                                s_date = activation_date(line_lst[3])
+                                
+                                count += 1
+                                #box_id = code
+                                city = 'Rome'
+                                country = 'Italy'
+                                dipartimento = line_lst[4] or 'ToBeDefined'
+                                codice = 'ToBeDefined'
+                                periodo_cons = 'ToBeDefined'
+                                descrizione_code = 'ToBeDefined'
+                                date_start = s_date
+                                date_end = s_date
+                                progetto = line_lst[3] or 'ToBeDefined'
+                                nome_progetto = 'ToBeDefined'
+                                description = " - ".join(line_lst[3:])
+                                rif_attivazione = None
+                                data_attivazione = s_date# date_end + 1 gg
+                                gg_conservazione = None
+                                data_distruzione = s_date# data_attivazione + gg_conservazione
+                                livello_sicurezza = 'ToBeDefined'
+                                
+                                numero_conto =  None
+                                commessa = None
+                                
+                                archivio = line_lst[1]
+                                
+                                richiedente = None
+                                data_ritiro = None
+                                move_to = None
+                                move_date = None
+                            
+                                stanza = 'ToBeDefined'
+                                scaffale = 'ToBeDefined'
+                            
+                    
+                                account = db.session.query(Account).filter(Account.name == 'TPIT').first()
+                                if not account:
+                                    account = Account(name = 'TPIT', created_by_fk = 1, changed_by_fk = 1)
+                                db.session.add(account)
+                                
+                                project = db.session.query(Project).filter(Project.code == progetto).first()
+                                if not project:
+                                    project = Project(name = nome_progetto, code = progetto, account= account, created_by_fk = 1, changed_by_fk = 1)
+                                db.session.add(project)
+                                
+                                '''
+                                site = db.session.query(Site).filter(Site.name == archivio).first()
+                                if not site:
+                                    site = Site(name = archivio, country=country, city=city, address='ND', account= account, created_by_fk = 1, changed_by_fk = 1)
+                                db.session.add(site)
+                                    
+                                area = db.session.query(Area).filter(Area.name == stanza).first()
+                                if not area:
+                                    area = Area(name = stanza, site= site, created_by_fk = 1, changed_by_fk = 1)
+                                db.session.add(area)    
+                                
+                                section = db.session.query(Section).join(Area).filter(Section.name == scaffale,
+                                                                        Area.name == stanza).first()
+                                if not section:
+                                    section = Section(name = scaffale, area= area, created_by_fk = 1, changed_by_fk = 1)
+                                db.session.add(section)
+                                
+                                box = db.session.query(Box).filter(Box.name == box_id).first()
+                                if not box:
+                                    box = Box(name = box_id, 
+                                              section= section,
+                                              active = True, 
+                                              created_by_fk = 1, 
+                                              changed_by_fk = 1)
+                                db.session.add(box)
+                                '''
+                                group = db.session.query(Group).filter(Group.name == dipartimento).first()
+                                if not group:
+                                    group = Group(name = dipartimento, account= account, created_by_fk = 1, changed_by_fk = 1)
+                                db.session.add(group)
+                                
+                                type = db.session.query(Type).filter(Type.name == codice).first()
+                                if not type:
+                                    type = Type(name = codice, 
+                                                account= account,
+                                                retention_code = periodo_cons,
+                                                description = descrizione_code,
+                                                activation_on = rif_attivazione,
+                                                retention_days = gg_conservazione,
+                                                security_class = livello_sicurezza,
+                                                created_by_fk = 1, 
+                                                changed_by_fk = 1)
+                                db.session.add(type)
+                                
+                                volume = Volume(name = description,
+                                                project = project,
+                                                box = box,
+                                                group = group,
+                                                type = type,
+                                                date_start =date_start,
+                                                date_end = date_end,
+                                                activation_date = data_attivazione,
+                                                endlife_date = data_distruzione,
+                                                account_number = numero_conto,
+                                                order_number = commessa,
+                                                request_by = richiedente,
+                                                request_on = data_ritiro,
+                                                created_by_fk = 1, 
+                                                changed_by_fk = 1
+                                                )
+                                print(count, str(volume.name))
+                                db.session.add(volume)
+                            
+                        except Exception as e:
+                            print('EXCEPTION PROJECT',e)
+                            errors.append(e)
+                            pass
+                                    
+        try:    
+        
+            db.session.commit()
+        except Exception as e:
+            #row[30] = str(e)
+            db.session.rollback() 
+                                
+            print(e,'         *-*-*-*-*-*-*-*-  ERROR *-*-*-*-*-*-')
+            errors.append((count+2,code, e))
+            #pass
+            
+                        
+                        
+                
+    print('')
+    print('         *-*-*-*-*-*-*-*-  LIST ERRORS *-*-*-*-*-*-')               
+    for e in errors:
+        print(e) 

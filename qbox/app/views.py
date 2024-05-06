@@ -446,8 +446,11 @@ class VolumeView(ModelView):
     def test(self, items):
         self.update_redirect()
         lst = self.datamodel.query(self._filters)
+        resp = write_csv(lst)
+        if resp:
+            return resp
+        return redirect(self.get_redirect())
         
-        return write_csv(lst)
     
     def pre_add(self, item):
         item.activation_date = item.date_end + timedelta(days=1)

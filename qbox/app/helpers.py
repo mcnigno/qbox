@@ -1,5 +1,5 @@
 import csv
-from flask import send_file, Response
+from flask import send_file, Response, flash
 def read_csv():    
     with open('qbox/app/xlsx/master.csv', mode='r') as infile:
         infile = csv.reader(infile)
@@ -13,6 +13,9 @@ from werkzeug.wsgi import FileWrapper
 def write_csv(query):
     with open('app/static/downloads/result.csv','w') as outfile: 
         outcsv = csv.writer(outfile)
+        if len(query[1]) > 1500:    
+            flash('Error: Too many Records selected: '+ str(len(query[1])),'info' )
+            return False
         #print(query)
         for el in query[1]:
             print(type(el), el)

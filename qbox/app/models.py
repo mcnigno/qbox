@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship
 from flask_appbuilder.models.decorators import renders 
 from datetime import datetime
 from sqlalchemy.orm.session import object_session
+from flask_appbuilder.models.decorators import renders
 
 
 """
@@ -57,7 +58,7 @@ class Area(AuditMixin, Model):
     note = Column(Text)
     
     def __repr__(self) -> str:
-        return self.name
+        return self.name + " | " + self.site.name
     def box_count(self):
         session = object_session(self)
         return session.query(Box).join(Section, Area).filter(Area.id == self.id).count()
@@ -166,14 +167,18 @@ class Volume(AuditMixin, Model):
     note = Column(Text)
     
     def __repr__(self) -> str:
-        return self.name
+        return self.name 
     
+    @renders('position')
+    def position(self) -> str:
+        return self.box.section.area.site.name  
     def days_left(self):
         if self.endlife_date:
             days = self.endlife_date - datetime.today().date()
             return days.days
         return 0
-    def progress(self):
+    
+    def progress(self): 
         return 100 - int(self.days_left(self)) 
     
     

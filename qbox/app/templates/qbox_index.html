@@ -47,16 +47,94 @@
       
   </div>
 </div>
-
 <div class="jumbotron index-table">
+  <div id="index-tabledata"></div>
+  <div>
+    <button style="float: right; " class="btn btn-primary" onclick='table.download("csv", "data.csv");'><i class="fa-regular fa-file-excel"><span style="margin: 10px;">Download</span>  </i></button>
+  </div>
 
-    <div id="index-tabledata"></div>
-      
+</div>
+
+<div class="jumbotron">
+  <div class="row">
+    <div style="margin: 40px;">
+      <h2>Box by Location</h2>
+    </div>
+    <div class="col-md-6">
+      <div class="chart-container" style="position: relative; ">
+        <canvas id="siteChart" width="100" height="100"></canvas>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Site</th>
+              <th>Box</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for line in box_site_list %}
+            <tr>
+            <td>{{line[0]}}</td>
+            <td>{{line[1]}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div>
+          <h3 style="text-align: center;">Total: {{'{0:0,.0f}'.format(all_box)}}</h3>
+        </div>
+      </div>
+    </div> 
+  </div>
+  <hr>
+  <div class="row">
+    <div style="margin: 40px;">
+      <h2>Documents by Group (Top 10)</h2>
+    </div>
+    
+    <div class="col-md-6">
+      <div class="chart-container" style="position: relative;">
+        <canvas id="groupChart" width="100" height="100%"></canvas>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Site</th>
+              <th>Documents</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for line in doc_group_list %}
+            <tr>
+              <td>{{line[0]}}</td>
+              <td>{{line[1]}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div>
+          <h3 style="text-align: center;">Total: {{'{0:0,.0f}'.format(all_doc)}}</h3>
+        </div>
+      </div>
+    </div>
+     
+  </div>
+  <hr>
+  <div class="row">
+    <div class="chart-container" style="position: relative;">
+      <canvas id="duedateChart" width="100" height="50%"></canvas>
+    </div>
+  </div>
   
 </div>
-<div>
-  <button style="float: right; " class="btn btn-primary" onclick='table.download("csv", "data.csv");'><i class="fa-regular fa-file-excel"><span style="margin: 10px;">Download</span>  </i></button>
-</div>
+
+  
 <div id="update-tabledata"></div>
 <script>
     var tabledata = {}
@@ -103,6 +181,111 @@
       console.log('the row', row)
       tt= row
     });
+</script>
+<script>
+        
+
+  const ctx_group = document.getElementById('groupChart');
+  
+  var group_data = {{ doc_group_chart_data |tojson | safe }};
+
+  var mb = new Chart(ctx_group, {
+    type: 'doughnut',
+    data: group_data,
+    options: {
+      plugins: {
+          legend: {
+              display: true,
+              position: 'bottom',
+              
+          }
+      }
+    }
+  });
+
+  const ctx_site = document.getElementById('siteChart');
+  
+  var data = {{ box_site_chart_data |tojson | safe }};
+
+  var mg = new Chart(ctx_site, {
+    type: 'doughnut',
+    data: data,
+    options: {
+      onClick: (event, elements, chart) => {
+        const i = elements[0].index;
+        
+        if (elements[0]) {            
+           const i = elements[0].index;
+           const di = elements[0].datasetIndex;
+           //alert(chart.data.labels[i] + ': ' + chart.data.datasets[di].label);
+           //document.getElementById('tag-id').innerHTML = '<div hx-get="/dashboard/type/'+chart.data.labels[i] +'" hx-trigger="load">'+ i +' data</div>';
+           //htmx.process(document.getElementById('tag-id'));
+           var label = chart.data.labels[i];
+           window.open(`http://localhost:5000/volumeview/list/?_flt_1_endlife_date=${label}-01-01&_flt_2_endlife_date=${label}-12-31#`,'_blank');
+        }
+      },
+      plugins: {
+          legend: {
+              display: true,
+              position: 'bottom',
+              
+          }
+      }
+    }
+  });
+
+   
+  const ctx2 = document.getElementById('duedateChart');
+  var data = {{ doc_endlife_chart_data | tojson | safe }};
+  
+
+  var md = new Chart(ctx2, {
+    type: 'bar',
+    data: data,
+    options: {
+      onClick: (event, elements, chart) => {
+        const i = elements[0].index;
+        
+        if (elements[0]) {            
+           const i = elements[0].index;
+           const di = elements[0].datasetIndex;
+           //alert(chart.data.labels[i] + ': ' + chart.data.datasets[di].label);
+           //document.getElementById('tag-id').innerHTML = '<div hx-get="/dashboard/type/'+chart.data.labels[i] +'" hx-trigger="load">'+ i +' data</div>';
+           //htmx.process(document.getElementById('tag-id'));
+           var label = chart.data.labels[i];
+           window.open(`http://localhost:5000/volumeview/list/?_flt_1_endlife_date=${label}-01-01&_flt_2_endlife_date=${label}-12-31#`,'_blank');
+        }
+      },
+      plugins: {
+
+        legend: {
+            display: true
+        },
+        
+        subtitle: {
+            position: 'bottom',
+            display: true,
+            text: 'Custom Chart Subtitle'
+        },
+        title: {
+          position: 'bottom',
+          display: true,
+          text: 'Custom Chart Title'
+        }
+      },
+      scales: {
+        x: {
+          stacked: false
+
+        },
+        y: {
+          stacked: false,
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
 </script>
 
 {% endblock %}

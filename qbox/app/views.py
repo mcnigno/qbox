@@ -240,7 +240,7 @@ class Dashboard(BaseView):
         
         print('step10')
         #print()
-        #print(volume_endlife_data)
+        print(volume_endlife_labels,volume_endlife_data)
         if request.method == 'POST':
             return self.render_template('dash2.html', 
                                     labels=volume_serie_label, 
@@ -393,6 +393,7 @@ from flask import Response, send_file
 from io import BytesIO
 from werkzeug.wsgi import FileWrapper
 from datetime import timedelta
+
  
 class VolumeView(ModelView):
     datamodel = SQLAInterface(Volume)
@@ -402,7 +403,7 @@ class VolumeView(ModelView):
     edit_title = 'Edit Document'
     list_title = 'List Documents'
     
-    list_columns = ['project.code', 'name', 'endlife_date', 'days_left']
+    list_columns = ['project.code', 'name', 'endlife_date', 'days_left','position',]
     add_columns = ['box','project','type','group', 'name','date_start','date_end','available','active']
     show_columns = ['id','box.id','box','box.section.area.site','box.section.area','box.section','project.account','project', 'type', 'group', 'name','request_by','date_start','date_end','activation_date','endlife_date','available','active']
     edit_columns = ['box','project','type','group', 'name','activation_date','available','active'] 
@@ -417,7 +418,7 @@ class VolumeView(ModelView):
         
     }
     
-    search_columns = ['project', 'type', 'group', 'name', 'date_start', 'date_end', 'endlife_date']
+    search_columns = ['project', 'type', 'group', 'name', 'date_start', 'date_end', 'endlife_date','box'] 
     related_views = [MoveView]
      
     show_template = 'appbuilder/general/model/show_cascade.html'
@@ -433,21 +434,6 @@ class VolumeView(ModelView):
         self.update_redirect()
         return redirect(self.get_redirect())
     
-    @action("export", "Export", "Export all Really?", "fa-rocket", single=False,)
-    def export(self, items):
-        lst = self.datamodel.query(self._filters)
-        #lst2= self.datamodel.get_values(items, self.list_columns)
-        
-        b = write_csv(self, lst)
-        return send_file(b, as_attachment=True, mimetype='text/csv', download_name='test.csv')
-        
-        #b = BytesIO(open(csv_file.read()))
-        #w = FileWrapper(b)
-        
-        
-        
-        #self.update_redirect()
-        return b
     
     @action("db_to_csv","Export All DB", icon= "fa-rocket", single=False)
     def db_to_csv(self, items):
@@ -460,10 +446,7 @@ class VolumeView(ModelView):
     def test(self, items):
         self.update_redirect()
         lst = self.datamodel.query(self._filters)
-        print(lst)
-        print(self._filters)
-        print(self._base_filters)
-        input('Look at this...')
+        
         return write_csv(lst)
     
     def pre_add(self, item):
@@ -472,12 +455,18 @@ class VolumeView(ModelView):
         return super().pre_add(item)
     
     
+from flask_appbuilder.forms import BooleanField, StringField,BS3TextAreaFieldWidget, TextAreaField, BS3TextFieldWidget 
+from flask_appbuilder.models.sqla.filters import FilterStartsWith
+from flask_appbuilder.utils.base import gettext
+
+extra_fields = {'bnotes': TextAreaField('bnotes', widget=BS3TextAreaFieldWidget())} 
+
 class BoxView(ModelView):
     datamodel = SQLAInterface(Box)
     list_columns = ['name','section.area.site','section.area' ,'active']
-    add_columns = ['section','name']
+    add_columns = ['section','name','note']
     show_columns = ['id', 'name','section.area.site','section.area' , 'section','active']
-    edit_columns = ['name', 'section','active']
+    edit_columns = ['name', 'section','active','note']
     
     related_views = [VolumeView]
      
@@ -485,13 +474,15 @@ class BoxView(ModelView):
     edit_template = 'appbuilder/general/model/edit_cascade.html'
     
     base_order = ('name','desc')
-    search_exclude_columns= ['Volumes']
+    
     
     label_columns = {
         'name': 'Code', 
         'section.area': 'Area',
         'section.area.site': 'Site'
     }
+    
+    
     
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
     def muldelete(self, items):
@@ -502,7 +493,7 @@ class BoxView(ModelView):
     
 class SectionView(ModelView):
     datamodel = SQLAInterface(Section)
-    list_columns = ['id', 'name', 'area', 'box_count'] 
+    list_columns = ['id', 'name', 'area', ] 
     add_columns = ['area','name']
     show_columns = ['id', 'name', 'area','area.site','area.site.id']
     edit_columns = ['name']
@@ -565,7 +556,8 @@ class ProjectView(ModelView):
     list_columns = ['code','name'] 
     add_columns = ['account','code','name']
     show_columns = ['id', 'name', 'color']
-    edit_columns = ['name', 'color']
+    edit_columns = ['name', 'color','code']
+    
 
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
     def muldelete(self, items):
@@ -576,6 +568,11 @@ class ProjectView(ModelView):
 class AccountView(ModelView):
     datamodel = SQLAInterface(Account)
     list_columns = ['id', 'name']
+    
+    search_form_extra_fields = extra_fields
+    add_form_extra_fields = extra_fields 
+    edit_form_extra_fields = extra_fields
+    
     add_columns = ['name']
     show_columns = ['id', 'name']
     edit_columns = ['name']
@@ -598,41 +595,20 @@ class VolumeApi(ModelRestApi):
 
 from flask_appbuilder.api import protect
 
-class MyView(BaseView):
-    route_base = "/myview"
-    
-
-    @expose('/method1/<string:param1>')
-    def method1(self, param1):
-        # do something with param1
-        # and return it
-        return param1 
-
-    
-    @expose('/method2/<string:param1>')
-    def method2(self, param1):
-        # do something with param1
-        # and render it
-        param1 = 'Hello %s' % (param1)
-        return render_template('portal.html', 
-                               param1 = param1,
-                               appbuilder=appbuilder)
-
-appbuilder.add_view_no_menu(MyView())
         
 appbuilder.add_api(VolumeApi)
 
 appbuilder.add_view(AccountView, name="Account", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings')
-appbuilder.add_view(VolumeView, name="Documents", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
-appbuilder.add_view(BoxView, name="Box", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
-appbuilder.add_view(SiteView, name="Site", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
-appbuilder.add_view(AreaView, name="Area", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
-appbuilder.add_view(SectionView, name="Section", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
+appbuilder.add_view(VolumeView, name="Documents", icon="fa fa-edit", category_icon='fa fa-edit', category='Documents') 
+appbuilder.add_view(BoxView, name="Box", icon="fa fa-edit", category_icon='fa fa-edit', category='Documents') 
+appbuilder.add_view(SiteView, name="Site", icon="fa fa-edit", category_icon='fa fa-edit', category='Logistic') 
+appbuilder.add_view(AreaView, name="Area", icon="fa fa-edit", category_icon='fa fa-edit', category='Logistic') 
+appbuilder.add_view(SectionView, name="Section", icon="fa fa-edit", category_icon='fa fa-edit', category='Logistic') 
 appbuilder.add_view(TypeView, name="Type", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
 appbuilder.add_view(GroupView, name="Group", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
 appbuilder.add_view(ProjectView, name="Project", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
 
-appbuilder.add_link('Dashboard','/dashboard/home','fa fa-edit')
+#appbuilder.add_link('Dashboard','/dashboard/home','fa fa-edit')
 
 appbuilder.add_view_no_menu(GroupView)
 appbuilder.add_view_no_menu(TypeView)
@@ -661,6 +637,7 @@ def page_not_found(e):
 
 from .helpers import load_master_3A, project_mass_color, load_master_30K, update_endlife, update_date2
 from .helpers import active_box, notfound_box, load_notfound, update_position, update_desc, load_volumes
+from .helpers import update_request_by
 #project_mass_color()
 db.create_all() 
 #load_master_3A() 
@@ -673,4 +650,5 @@ db.create_all()
 #update_position() 
 #update_desc()
 #load_volumes()
+#update_request_by()
 

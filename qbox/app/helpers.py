@@ -305,13 +305,16 @@ def activation_date(prj_code):
     ]
     for date in dates:
         try:
-            if prj_code >= date[0] and prj_code <= date[1]:
+            print('project code:', prj_code, date)
+            if int(prj_code) >= date[0] and int(prj_code) <= date[1]:
+                #print('Match !')
                 return date[2]
-            else:
-                return datetime(2024,2,28)
-        except:
+
+        except Exception as e:
+            print(e)
             return datetime(2024,2,28)
-            
+    #print('NOT MATCH', type(prj_code), type(date[0]), type([1]))
+    return datetime(2024,2,28)
 
 
 def load_master_3A():
@@ -752,15 +755,18 @@ def update_endlife():
     # update endlife date
     print('**** * * * * * * update endlife date')
     volumes = db.session.query(Volume).all()
-    print('len volumes:', len(volumes))
+    #print('len volumes:', len(volumes))
     count = 0
     if volumes:
         for v in volumes:
             count += 1
             days = v.type.retention_days
+            #print('hold date:', v.activation_date)
+            v.activation_date = activation_date(v.project.code)
             v.endlife_date = v.activation_date + timedelta(days=days)
             v.changed_by_fk = '1'
             print(count,v.id, v.activation_date, v.endlife_date)
+            db.session.add(v)
     try:
         db.session.commit()
         
@@ -1337,3 +1343,19 @@ def load_volumes():
     print('         *-*-*-*-*-*-*-*-  LIST ERRORS *-*-*-*-*-*-')               
     for e in errors:
         print(e) 
+        
+        
+def update_request_by():
+    volumes = db.session.query(Volume).all()
+    # 2115 - INGEGNERIA - SEGRETERIA TECNICA - PETRANGELI - MR/OFFERTA - 0110.01 - 1020.01 
+    for v in volumes:
+        try:
+            print('-> ',v.name)
+            req =  v.name.split(' - ',6)[3]
+            print(req)
+            v.request_by = req
+            v.changed_by_fk = '1'
+        except Exception as e:
+            print(e)
+            input('Look... -<')
+    db.session.commit()

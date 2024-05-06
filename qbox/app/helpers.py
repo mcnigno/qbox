@@ -1145,7 +1145,7 @@ join qbox5.project on volume.project_id = project.id
 
     # Use the mysqldump command to execute the query and save the result as a CSV file
     #command = f"mysql -h {mysql_host} -u {mysql_user} -p{mysql_password} {mysql_database} -e \"{sql_query}\" > {output_csv_file}"
-    command = f"mysql -u {mysql_user} -p{mysql_password} {mysql_database} -e \"{sql_query}\" > {output_csv_file}"
+    command = f"mysql -u {mysql_user} -p{mysql_password} {mysql_database} -e '{sql_query}' > {output_csv_file}"
     
     # Execute the command
     os.system(command)

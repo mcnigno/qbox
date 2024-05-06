@@ -11,7 +11,7 @@ from io import BytesIO
 from werkzeug.wsgi import FileWrapper
 
 def write_csv(query):
-    with open('app/static/downloads/result.csv','w') as outfile:
+    with open('./app/static/downloads/result.csv','w') as outfile:
         outcsv = csv.writer(outfile)
         #print(query)
         for el in query[1]:

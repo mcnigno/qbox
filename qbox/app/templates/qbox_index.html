@@ -3,7 +3,7 @@
 <div class="jumbotron index-box">
   <div class="container">
     <div class="col-sm-6">
-      <img src="{{url_for('static',filename='img/nada_logo.png')}}" alt="" width="80%">
+      <img src="{{url_for('static',filename='img/Nada_logo.png')}}" alt="" width="80%">
     </div>
     <div class="col-sm-6">
       <h1 class="index-title">{{_("NADA")}}</h1>
@@ -50,7 +50,7 @@
 <div class="jumbotron index-table">
   <div id="index-tabledata"></div>
   <div>
-    <button style="float: right; " class="btn btn-primary" onclick='table.download("csv", "data.csv");'><i class="fa-regular fa-file-excel"><span style="margin: 10px;">Download</span>  </i></button>
+    <button style="float: right; " class="btn btn-primary" onclick='table.download("xlsx", "data.xlsx");'><i class="fa-regular fa-file-excel"><span style="margin: 10px;">Download</span>  </i></button>
   </div>
 
 </div>
@@ -253,7 +253,7 @@
            //document.getElementById('tag-id').innerHTML = '<div hx-get="/dashboard/type/'+chart.data.labels[i] +'" hx-trigger="load">'+ i +' data</div>';
            //htmx.process(document.getElementById('tag-id'));
            var label = chart.data.labels[i];
-           window.open(`http://localhost:5000/volumeview/list/?_flt_1_endlife_date=${label}-01-01&_flt_2_endlife_date=${label}-12-31#`,'_blank');
+           window.open(`/volumeview/list/?_flt_1_endlife_date=${label}-01-01&_flt_2_endlife_date=${label}-12-31#`,'_blank');
         }
       },
       plugins: {

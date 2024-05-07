@@ -1068,7 +1068,8 @@ def update_position():
     for error in errors:
         print(error)      
             
-import os         
+import os
+         
 def db_to_csv():
         
     # MySQL connection information
@@ -1148,7 +1149,10 @@ join qbox5.project on volume.project_id = project.id
     command = f"mysql -u {mysql_user} -p{mysql_password} {mysql_database} -e '{sql_query}' > {output_csv_file}"
     
     # Execute the command
+    
     os.system(command)
+    
+   
 
     print(f"Query result has been saved to {output_csv_file}")
     return send_file('static/downloads/output.csv', as_attachment=True, download_name='result.csv')

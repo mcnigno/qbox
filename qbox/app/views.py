@@ -434,14 +434,14 @@ class VolumeView(ModelView):
         self.update_redirect()
         return redirect(self.get_redirect())
     
-    
+    '''
     @action("db_to_csv","Export All DB", icon= "fa-rocket", single=False)
     def db_to_csv(self, items):
         self.update_redirect()
         csv_file = db_to_csv()
         #return send_file('./static/downloads/output.csv', as_attachment=True, download_name='sal.csv')
         return csv_file
-    
+    '''
     @action(name="test",text= "Export Search", icon=  "fa-rocket" , single=False)
     def test(self, items):
         self.update_redirect()

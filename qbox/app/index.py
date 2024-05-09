@@ -1,7 +1,7 @@
 
 from flask_appbuilder import IndexView
 from flask_appbuilder import expose
-from .models import Volume, Project, Box, Site, Group
+from .models import Volume, Project, Box, Site, Group, Section, Area
 from flask_appbuilder.models.sqla.interface import SQLAInterface
 from flask import g
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -27,11 +27,11 @@ class QboxIndexView(IndexView):
         
         session = Session()
         
-        all_box = session.query(Box).count()
+        all_box = session.query(Box).join(Section,Area,Site).filter(Site.name != 'X - Not Found').count()
         all_doc = session.query(Volume).count()  
         
         # box per Site
-        box_site = session.query(Site).all()
+        box_site = session.query(Site).filter(Site.name != 'X - Not Found').order_by(Site.name.asc()).all()
         box_site_labels = [x.name for x in box_site]
         box_site_data = [x.box_count() for x in box_site]
         box_site_chart_data = {
@@ -76,6 +76,10 @@ class QboxIndexView(IndexView):
           }]
         }
         
+        last_entries = session.query(Volume).order_by(Volume.created_on.desc()
+                                            ).limit(100).all()
+        ie_tabledata = [{'Project': v.project.code,'Type': v.type.name, 'Name': v.name, 'Group': v.group.name, 'id': v.id, 'due_date': str(v.endlife_date) } for v in last_entries]
+        
         self.update_redirect()
         return self.render_template(self.index_template, 
                                     appbuilder=self.appbuilder, 
@@ -85,7 +89,8 @@ class QboxIndexView(IndexView):
                                     box_site_list = zip(box_site_labels, box_site_data), 
                                     doc_group_chart_data = doc_group_chart_data,
                                     doc_group_list = zip(doc_group_labels, doc_group_data),
-                                    doc_endlife_chart_data=doc_endlife_chart_data
+                                    doc_endlife_chart_data=doc_endlife_chart_data,
+                                    ie_tabledata=ie_tabledata
                                     )
     
     

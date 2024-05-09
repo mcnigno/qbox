@@ -16,7 +16,7 @@
     <div class="input-group" style="margin-bottom: 10px;">
       <span class="input-group-addon" id="basic-addon1">Project</span>
       <input class="form-control" type="search" 
-          name="project" placeholder="Filter By Project Name or Number..." 
+          name="project" placeholder="Filter By Project Number" 
           hx-post="/dashboard/index" 
           hx-trigger="input changed delay:500ms, search" 
           hx-target="#update-tabledata" 
@@ -29,7 +29,7 @@
     <div class="input-group">
       <span class="input-group-addon" id="basic-addon1">Document</span>
       <input class="form-control" type="search" 
-          name="name" placeholder="Filter By Document Name..." 
+          name="name" placeholder="Filter By Document Content" 
           hx-post="/dashboard/index" 
           hx-trigger="input changed delay:500ms, search" 
           hx-target="#update-tabledata" 
@@ -57,7 +57,7 @@
 
 <div class="jumbotron">
   <div class="row">
-    <div style="margin: 40px;">
+    <div style="margin: 40px; text-align:center">
       <h2>Box by Location</h2>
     </div>
     <div class="col-md-6">
@@ -91,7 +91,7 @@
   </div>
   <hr>
   <div class="row">
-    <div style="margin: 40px;">
+    <div style="margin: 40px; text-align:center">
       <h2>Documents by Group (Top 10)</h2>
     </div>
     
@@ -127,6 +127,9 @@
   </div>
   <hr>
   <div class="row">
+    <div style="margin: 40px; text-align:center">
+      <h2>Documents by Group (Top 10)</h2>
+    </div>
     <div class="chart-container" style="position: relative;">
       <canvas id="duedateChart" width="100" height="50%"></canvas>
     </div>
@@ -137,7 +140,7 @@
   
 <div id="update-tabledata"></div>
 <script>
-    var tabledata = {}
+    var tabledata = {{ ie_tabledata |tojson |safe}}
     var printIcon = function(cell, formatterParams, onRendered){ //plain text value
       return "<i class='fa fa-print'></i>";
     };

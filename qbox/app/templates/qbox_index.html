@@ -27,9 +27,9 @@
   </div>
   <div class="col-sm-6">
     <div class="input-group">
-      <span class="input-group-addon" id="basic-addon1">Book</span>
+      <span class="input-group-addon" id="basic-addon1">Document</span>
       <input class="form-control" type="search" 
-          name="name" placeholder="Filter By Book Name..." 
+          name="name" placeholder="Filter By Document Name..." 
           hx-post="/dashboard/index" 
           hx-trigger="input changed delay:500ms, search" 
           hx-target="#update-tabledata" 
@@ -193,6 +193,19 @@
     type: 'doughnut',
     data: group_data,
     options: {
+      onClick: (event, elements, chart) => {
+        const i = elements[0].index;
+        
+        if (elements[0]) {            
+           const i = elements[0].index;
+           const di = elements[0].datasetIndex;
+           //alert(chart.data.labels[i] + ': ' + chart.data.datasets[di].label);
+           //document.getElementById('tag-id').innerHTML = '<div hx-get="/dashboard/type/'+chart.data.labels[i] +'" hx-trigger="load">'+ i +' data</div>';
+           //htmx.process(document.getElementById('tag-id'));
+           var label = chart.data.labels[i];
+           window.open(`/dashboard/chart/group/${label}`);
+        }
+      },
       plugins: {
           legend: {
               display: true,
@@ -221,7 +234,7 @@
            //document.getElementById('tag-id').innerHTML = '<div hx-get="/dashboard/type/'+chart.data.labels[i] +'" hx-trigger="load">'+ i +' data</div>';
            //htmx.process(document.getElementById('tag-id'));
            var label = chart.data.labels[i];
-           window.open(`http://localhost:5000/volumeview/list/?_flt_1_endlife_date=${label}-01-01&_flt_2_endlife_date=${label}-12-31#`,'_blank');
+           window.open(`/dashboard/chart/site/${label}`);
         }
       },
       plugins: {
@@ -254,6 +267,8 @@
            //htmx.process(document.getElementById('tag-id'));
            var label = chart.data.labels[i];
            window.open(`/volumeview/list/?_flt_1_endlife_date=${label}-01-01&_flt_2_endlife_date=${label}-12-31#`,'_blank');
+           ///window.open(`/dashboard/chart/year/${label}`,'_blank');
+
         }
       },
       plugins: {

@@ -46,9 +46,25 @@ def month_last_day(d):
     )
 
 """
+# Endpoint per gestire la richiesta con parametro dalla URL
+from .helpers import chart_to_csv
+from flask import url_for
+
 class Dashboard(BaseView):
     route_base = '/dashboard'
     allow_browser_login = True
+    
+    
+    @expose('/chart/<string:title>/<string:param>')
+    @has_access
+    def chart(self,title,param):
+        if title and param:
+            csv = chart_to_csv(title,param)
+            if csv:
+                return csv   
+        return redirect(self.get_redirect())
+        
+    
     @expose('/index/', methods=('GET','POST'))
     @has_access
     def index(self):
@@ -393,7 +409,7 @@ from flask import Response, send_file
 from io import BytesIO
 from werkzeug.wsgi import FileWrapper
 from datetime import timedelta
-
+from flask_appbuilder.models.filters import Filters, BaseFilter, FilterRelation, BaseFilterConverter, Optional
  
 class VolumeView(ModelView):
     datamodel = SQLAInterface(Volume)
@@ -449,6 +465,16 @@ class VolumeView(ModelView):
         resp = write_csv(lst)
         if resp:
             return resp
+        return redirect(self.get_redirect())
+    
+    @action(name="filter",text= "Show Filters", icon=  "fa-rocket" , single=False)
+    def filter(self, items):
+        print()
+        print('***********************************')
+        datamodel = SQLAInterface(Site)
+        
+        print(self._filters, type(self._filters))
+        self._filters = [['name', 'like', f'%ARI%']]
         return redirect(self.get_redirect())
         
     
@@ -552,7 +578,10 @@ class SiteView(ModelView):
     def muldelete(self, items):
         self.datamodel.delete_all(items)
         self.update_redirect()
+    
+        
         return redirect(self.get_redirect())
+    
 
 class ProjectView(ModelView):
     datamodel = SQLAInterface(Project)

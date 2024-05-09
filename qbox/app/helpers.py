@@ -17,33 +17,42 @@ def write_csv(query):
             flash('Error: Too many Records selected: '+ str(len(query[1])),'info' )
             return False
         #print(query)
+        labels = ['NADA_ID','BOX_CODE','CITY','COUNTRY','GROUP','TYPE',
+                      'TYPE_CODE','TYPE_DESCRIPTION','DATE START','DATE_END',
+                      'PROJECT','PROJECT NAME','DESCRIPTION','TRIGGER ON', 'TRIGGER DATE',
+                      'RETENTION DAYS','ENDLIFE DATE','SECURITY CLASS','ACCOUNT','ORDER',
+                      'SITE','AREA','REQUEST BY','REQUEST ON', 'SECTION']
+        outcsv.writerow(labels)
         for el in query[1]:
             print(type(el), el)
             #input('look here')
-            outcsv.writerow([el.box.id, 
-                  el.box.section.area.site.city,
-                  el.box.section.area.site.country,
-                  el.group.name,
-                  el.type.name,
-                  el.type.retention_code,
-                  el.type.description,
-                  el.date_start,
-                  el.date_end,
-                  el.project.code,
-                  el.project.name,
-                  el.name,
-                  el.type.activation_on, 
-                  el.activation_date,
-                  el.type.retention_days,
-                  el.endlife_date,
-                  el.type.security_class,
-                  el.account_number,
-                  el.order_number,
-                  el.box.section.area.site.name,
-                  el.box.section.area.name,
-                  el.request_by,
-                  el.request_on,
-                  el.box.section.name
+            
+            outcsv.writerow([
+                el.box.id,
+                el.box.name, 
+                el.box.section.area.site.city,
+                el.box.section.area.site.country,
+                el.group.name,
+                el.type.name,
+                el.type.retention_code,
+                el.type.description,
+                el.date_start,
+                el.date_end,
+                el.project.code,
+                el.project.name,
+                el.name,
+                el.type.activation_on, 
+                el.activation_date,
+                el.type.retention_days,
+                el.endlife_date,
+                el.type.security_class,
+                el.account_number,
+                el.order_number,
+                el.box.section.area.site.name,
+                el.box.section.area.name,
+                el.request_by,
+                el.request_on,
+                el.box.section.name
                   
                   ])
         #b = BytesIO(open(outfile,'rb'))
@@ -1351,7 +1360,7 @@ def load_volumes():
     for e in errors:
         print(e) 
         
-        
+from flask import url_for, redirect  
 def update_request_by():
     volumes = db.session.query(Volume).all()
     # 2115 - INGEGNERIA - SEGRETERIA TECNICA - PETRANGELI - MR/OFFERTA - 0110.01 - 1020.01 
@@ -1366,3 +1375,69 @@ def update_request_by():
             print(e)
             input('Look... -<')
     db.session.commit()
+    
+# Chart JS Helper    
+# Funzione per creare la vista di elenco dei dati filtrati
+
+def chart_to_csv(title,param):
+    #filtered_records = db.session.query(Site).filter(Site.name.contains(param)).all()
+    print('-*--* -/* - *-TITLE , PARAM +--++ ',title,param)
+    if title == 'site':
+        filtered_records = db.session.query(Volume).join(Box,Section,Area,Site).filter(Site.name == param).all()
+    elif title == 'group':
+        filtered_records = db.session.query(Volume).join(Group).filter(Group.name == param).all()
+    elif title == 'year':
+        filtered_records = db.session.query(Volume).filter(Volume.endlife_date.year == param).all()
+        print('Volume for this year:',title, len(filtered_records))
+
+    
+    with open('app/static/downloads/{}_result.csv'.format(title),'w') as outfile: 
+        outcsv = csv.writer(outfile)
+        if len(filtered_records) > 3000:    
+            flash('Error: Too many Records selected: '+ str(len(filtered_records)),'info' )
+            return False
+        
+        if filtered_records:
+            labels = ['NADA_ID','BOX_CODE','CITY','COUNTRY','GROUP','TYPE',
+                      'TYPE_CODE','TYPE_DESCRIPTION','DATE START','DATE_END',
+                      'PROJECT','PROJECT NAME','DESCRIPTION','TRIGGER ON', 'TRIGGER DATE',
+                      'RETENTION DAYS','ENDLIFE DATE','SECURITY CLASS','ACCOUNT','ORDER',
+                      'SITE','AREA','REQUEST BY','REQUEST ON', 'SECTION']
+            outcsv.writerow(labels)
+            for el in filtered_records:
+                #print(type(el), el)
+                #input('look here')
+                
+                outcsv.writerow([el.box.id, el.box.name,
+                    el.box.section.area.site.city,
+                    el.box.section.area.site.country,
+                    el.group.name,
+                    el.type.name,
+                    el.type.retention_code,
+                    el.type.description,
+                    el.date_start,
+                    el.date_end,
+                    el.project.code,
+                    el.project.name,
+                    el.name,
+                    el.type.activation_on, 
+                    el.activation_date,
+                    el.type.retention_days,
+                    el.endlife_date,
+                    el.type.security_class,
+                    el.account_number,
+                    el.order_number,
+                    el.box.section.area.site.name,
+                    el.box.section.area.name,
+                    el.request_by,
+                    el.request_on,
+                    el.box.section.name
+                    
+                    ])
+            
+            return send_file('static/downloads/{}_result.csv'.format(title), as_attachment=True, download_name='{}_result.csv'.format(title))
+        
+        return False
+
+
+        

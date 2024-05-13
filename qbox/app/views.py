@@ -669,7 +669,7 @@ def page_not_found(e):
 
 from .helpers import load_master_3A, project_mass_color, load_master_30K, update_endlife, update_date2
 from .helpers import active_box, notfound_box, load_notfound, update_position, update_desc, load_volumes
-from .helpers import update_request_by
+from .helpers import update_request_by,import_new_documents
 #project_mass_color()
 db.create_all() 
 #load_master_3A() 
@@ -683,4 +683,5 @@ db.create_all()
 #update_desc()
 #load_volumes()
 #update_request_by()
+#import_new_documents()
 

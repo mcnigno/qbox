@@ -342,38 +342,38 @@ def load_master_3A():
             
             count += 1
             box_id = row[0].value
-            city = row[3].value
-            country = row[4].value
-            dipartimento = row[5].value or 'ToBeDefined'
-            codice = row[6].value or 'ToBeDefined'
-            periodo_cons = row[7].value
-            descrizione_code = row[8].value or 'ToBeDefined'
-            date_start = s_date
-            date_end = s_date
-            progetto = row[11].value or 'ToBeDefined'
-            nome_progetto = row[12].value or 'ToBeDefined'
-            description = row[13].value or 'ToBeDefined'
-            rif_attivazione = row[14].value or None
-            data_attivazione = s_date# date_end + 1 gg
-            gg_conservazione = row[16].value or None
-            data_distruzione = s_date# data_attivazione + gg_conservazione
-            livello_sicurezza = row[18].value or 'ToBeDefined'
+            city = row[1].value
+            country = row[2].value
+            dipartimento = row[3].value or 'ToBeDefined'
+            codice = row[4].value or 'ToBeDefined'
+            periodo_cons = row[5].value
+            descrizione_code = row[6].value or 'ToBeDefined'
+            date_start = row[7].value or s_date
+            date_end = row[8].value or s_date
+            progetto = row[9].value or 'ToBeDefined'
+            nome_progetto = row[10].value or 'ToBeDefined'
+            description = row[11].value or 'ToBeDefined'
+            rif_attivazione = row[12].value or None
+            data_attivazione = row[13].value or s_date# date_end + 1 gg
+            gg_conservazione = row[14].value or None
+            data_distruzione = row[15].value or s_date# data_attivazione + gg_conservazione
+            livello_sicurezza = row[16].value or 'ToBeDefined'
             
-            numero_conto = row[19].value or None
-            commessa = None
+            numero_conto = row[17].value or None
+            commessa = row[18].value or None
             
             #add calculated column to the table
-            archivio = row[20].value or "ND"
+            archivio = row[19].value or "ND"
             
-            stanza = row[1].value or "ND"
+            stanza = row[20].value or "ND"
             
-            richiedente = None
-            data_ritiro = None
+            richiedente = row[21].value or None
+            data_ritiro = row[22].value or None
             
-            scaffale = row[2].value or "ND"
+            scaffale = row[23].value or "ND"
             
-            move_to = None
-            move_date = None
+            move_to = row[25].value or None
+            move_date = row[26].value or None
             
             
             
@@ -1440,4 +1440,19 @@ def chart_to_csv(title,param):
         return False
 
 
+def import_new_documents():
+    
+    wb = load_workbook('app/xlsx/master_6.xlsx', data_only=True)
+    ws = wb.active
+    count = 0
+    errors = []
+    
+
+    for row in ws.iter_rows(min_row=3):
+        site = db.session.query(Site).filter(Site.name == row[19].value).first()
+        area = db.session.query(Area).filter(Area.name == row[20].value).first()
+        scaffale = db.session.query(Section).filter(Section.name == row[23].value).first() 
+        box = db.session.query(Box).filter(Box.name == row[0].value).first()
         
+        if box and box.section != scaffale: 
+            print(row[0].value, box, box.section or '**************', scaffale or '------------')

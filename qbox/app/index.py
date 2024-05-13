@@ -80,6 +80,8 @@ class QboxIndexView(IndexView):
                                             ).limit(100).all()
         ie_tabledata = [{'Project': v.project.code,'Type': v.type.name, 'Name': v.name, 'Group': v.group.name, 'id': v.id, 'due_date': str(v.endlife_date) } for v in last_entries]
         
+        Session.remove()
+        
         self.update_redirect()
         return self.render_template(self.index_template, 
                                     appbuilder=self.appbuilder, 

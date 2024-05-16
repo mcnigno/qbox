@@ -460,6 +460,7 @@ class VolumeView(ModelView):
     '''
     @action(name="test",text= "Export Search", icon=  "fa-rocket" , single=False)
     def test(self, items):
+        print(self._filters, type(self._filters))
         self.update_redirect()
         lst = self.datamodel.query(self._filters)
         resp = exportexcel(lst) 
@@ -471,10 +472,10 @@ class VolumeView(ModelView):
     def filter(self, items):
         print()
         print('***********************************')
-        datamodel = SQLAInterface(Site)
+        
         
         print(self._filters, type(self._filters))
-        self._filters = [['name', 'like', f'%ARI%']]
+        #self._filters = [['name', 'like', f'%ARI%']]
         return redirect(self.get_redirect())
         
     

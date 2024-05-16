@@ -404,7 +404,7 @@ class MoveView(ModelView):
         
         return super().pre_add(item)
 
-from .helpers import write_csv, db_to_csv
+from .helpers import write_csv, db_to_csv, exportexcel
 from flask import Response, send_file
 from io import BytesIO
 from werkzeug.wsgi import FileWrapper
@@ -462,7 +462,7 @@ class VolumeView(ModelView):
     def test(self, items):
         self.update_redirect()
         lst = self.datamodel.query(self._filters)
-        resp = write_csv(lst)
+        resp = exportexcel(lst) 
         if resp:
             return resp
         return redirect(self.get_redirect())
@@ -511,7 +511,7 @@ class BoxView(ModelView):
         'section.area.site': 'Site'
     }
     
-    
+    search_exclude_columns = ['box.id','box.name']
     
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
     def muldelete(self, items):
@@ -669,7 +669,7 @@ def page_not_found(e):
 
 from .helpers import load_master_3A, project_mass_color, load_master_30K, update_endlife, update_date2
 from .helpers import active_box, notfound_box, load_notfound, update_position, update_desc, load_volumes
-from .helpers import update_request_by,import_new_documents
+from .helpers import update_request_by,import_new_documents,strip_box_code
 #project_mass_color()
 db.create_all() 
 #load_master_3A() 
@@ -684,4 +684,5 @@ db.create_all()
 #load_volumes()
 #update_request_by()
 #import_new_documents()
+#strip_box_code()   
 

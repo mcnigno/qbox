@@ -7,12 +7,107 @@ def read_csv():
             box, archivio, scaffale, progetto, dipartimento, codice, volume_da, volume_a = line[0].split(';')
             print(box, progetto, codice, volume_a)
 
-from io import BytesIO
-from werkzeug.wsgi import FileWrapper
+
+#import pandas as pd
+from openpyxl import load_workbook
+from openpyxl.worksheet.table import Table, TableStyleInfo
+
+
+def exportexcel(query):
+    records = query[1]
+    wb = load_workbook('app/xlsx/Export.xlsx')
+    ws = wb.active
+    row_count = 0
+    for el in records:
+        row_count +=1
+        new_row = [
+            str(el.box.id),
+            el.box.name, 
+            el.box.section.area.site.city,
+            el.box.section.area.site.country,
+            el.group.name,
+            el.type.name,
+            el.type.retention_code,
+            el.type.description,
+            el.date_start,
+            el.date_end,
+            el.project.code,
+            el.project.name,
+            el.name,
+            el.type.activation_on, 
+            el.activation_date,
+            el.type.retention_days,
+            el.endlife_date,
+            el.type.security_class,
+            el.account_number,
+            el.order_number,
+            el.box.section.area.site.name,
+            el.box.section.area.name,
+            el.request_by,
+            el.request_on,
+            el.box.section.name]
+        ws.append(new_row)
+    
+    
+    tab = Table(displayName="Table1", ref="A2:AA"+str(row_count+2))
+    labels = ['Doc ID',	
+              'Box N.',	
+              'Città',	
+              'Nazione',	
+              'Gruppo / Dipartimento',	
+              'Codice archivio',	
+              'Periodo di conservazione', 
+              'Descrizione del codice archivio',	
+              'Data da',	
+              'Data a',	
+              'N. progetto',	
+              'Nome del progetto',	
+              'Descrizione',	
+              'Riferimento di attivazione',	
+              'Data di attivazione',
+              'GG  conservazione',
+              'Data distruzione', 
+              'Livello di sicurezza',	
+              'Numero di conto',	
+              'Commessa N.',	
+              'Archivio',	
+              'Stanza',	
+              'Richiedente',
+              'data ritiro',	
+              'Scaffale N.', 
+              'Persona',
+              'Data']
+    # Add a default style with striped rows and banded columns
+    style = TableStyleInfo(name="TableStyleMedium9", 
+                            #showFirstColumn=False,
+                            #showLastColumn=False, 
+                             
+                            #showColumnStripes=True,
+                            showRowStripes=True)
+    tab.tableStyleInfo = style 
+
+    '''
+    Table must be added using ws.add_table() method to avoid duplicate names.
+    Using this method ensures table name is unque through out defined names and all other table name. 
+    '''
+    #tab.headerRowCount = False  
+    tab._initialise_columns()
+    for column, value in zip(tab.tableColumns, labels):
+        column.name = value
+
+    ws.add_table(tab)
+    wb.save('app/xlsx/export_search.xlsx')    
+    #b = BytesIO(open(outfile,'rb'))
+        #outfile.seek(0)
+        #outfile.close()
+           
+    return send_file('xlsx/export_search.xlsx', as_attachment=True, download_name='ADM Search Export.xlsx')
+    
+
 
 def write_csv(query):
     with open('app/static/downloads/result.csv','w') as outfile: 
-        outcsv = csv.writer(outfile)
+        outcsv = csv.writer(outfile, dialect='excel', lineterminator="\n", quotechar='"')
         if len(query[1]) > 1500:    
             flash('Error: Too many Records selected: '+ str(len(query[1])),'info' )
             return False
@@ -330,7 +425,7 @@ def activation_date(prj_code):
 
 
 def load_master_3A():
-    wb = load_workbook('app/xlsx/master_5.xlsx', data_only=True)
+    wb = load_workbook('app/xlsx/master_6.xlsx', data_only=True)
     ws = wb.active
     count = 0
     errors = []
@@ -461,7 +556,8 @@ def load_master_3A():
             #row[30] = str(e)
             db.session.rollback() 
             print(e,'         *-*-*-*-*-*-*-*-  ERROR *-*-*-*-*-*-')
-            #errors.append((count+2,e))
+            errors.append((count+2,e))
+            input('look')
             #pass
             break
            
@@ -1445,14 +1541,38 @@ def import_new_documents():
     wb = load_workbook('app/xlsx/master_6.xlsx', data_only=True)
     ws = wb.active
     count = 0
+    count_tot = 0
     errors = []
     
 
     for row in ws.iter_rows(min_row=3):
+        count_tot += 1
         site = db.session.query(Site).filter(Site.name == row[19].value).first()
         area = db.session.query(Area).filter(Area.name == row[20].value).first()
         scaffale = db.session.query(Section).filter(Section.name == row[23].value).first() 
         box = db.session.query(Box).filter(Box.name == row[0].value).first()
         
-        if box and box.section != scaffale: 
-            print(row[0].value, box, box.section or '**************', scaffale or '------------')
+        if box and box.section.name != str(row[23].value).strip():
+            count += 1 
+            print('SCAFFALE ERRATO:',box.name,repr(box.section.name),repr(box.section.name.strip()), repr(str(row[23].value).strip()))
+            
+        if box is None:
+            print('BOX ASSENTE',row[0].value)
+    
+    print('Tot:', count_tot, 'New:', count)
+    
+    
+def strip_box_code():
+    boxes = db.session.query(Section).all()   
+    print(len(boxes))
+    count = 0
+    for box in boxes:
+        count += 1
+        
+        new_name = box.name.strip()
+        box.name = new_name
+        box.changed_by_fk = '1'
+        
+        print(count,'/',len(boxes))
+    db.session.commit()
+    

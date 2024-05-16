@@ -14,95 +14,98 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 
 
 def exportexcel(query):
-    records = query[1]
-    wb = load_workbook('app/xlsx/Export.xlsx')
-    ws = wb.active
-    row_count = 0
-    for el in records:
-        row_count +=1
-        new_row = [
-            str(el.box.id),
-            el.box.name, 
-            el.box.section.area.site.city,
-            el.box.section.area.site.country,
-            el.group.name,
-            el.type.name,
-            el.type.retention_code,
-            el.type.description,
-            el.date_start,
-            el.date_end,
-            el.project.code,
-            el.project.name,
-            el.name,
-            el.type.activation_on, 
-            el.activation_date,
-            el.type.retention_days,
-            el.endlife_date,
-            el.type.security_class,
-            el.account_number,
-            el.order_number,
-            el.box.section.area.site.name,
-            el.box.section.area.name,
-            el.request_by,
-            el.request_on,
-            el.box.section.name]
-        ws.append(new_row)
-    
-    
-    tab = Table(displayName="Table1", ref="A2:AA"+str(row_count+2))
-    labels = ['Doc ID',	
-              'Box N.',	
-              'Città',	
-              'Nazione',	
-              'Gruppo / Dipartimento',	
-              'Codice archivio',	
-              'Periodo di conservazione', 
-              'Descrizione del codice archivio',	
-              'Data da',	
-              'Data a',	
-              'N. progetto',	
-              'Nome del progetto',	
-              'Descrizione',	
-              'Riferimento di attivazione',	
-              'Data di attivazione',
-              'GG  conservazione',
-              'Data distruzione', 
-              'Livello di sicurezza',	
-              'Numero di conto',	
-              'Commessa N.',	
-              'Archivio',	
-              'Stanza',	
-              'Richiedente',
-              'data ritiro',	
-              'Scaffale N.', 
-              'Persona',
-              'Data']
-    # Add a default style with striped rows and banded columns
-    style = TableStyleInfo(name="TableStyleMedium9", 
-                            #showFirstColumn=False,
-                            #showLastColumn=False, 
-                             
-                            #showColumnStripes=True,
-                            showRowStripes=True)
-    tab.tableStyleInfo = style 
+    try:
+        records = query[1]
+        wb = load_workbook('app/xlsx/Export.xlsx')
+        ws = wb.active
+        row_count = 0
+        for el in records:
+            row_count +=1
+            new_row = [
+                str(el.box.id),
+                el.box.name, 
+                el.box.section.area.site.city,
+                el.box.section.area.site.country,
+                el.group.name,
+                el.type.name,
+                el.type.retention_code,
+                el.type.description,
+                el.date_start,
+                el.date_end,
+                el.project.code,
+                el.project.name,
+                el.name,
+                el.type.activation_on, 
+                el.activation_date,
+                el.type.retention_days,
+                el.endlife_date,
+                el.type.security_class,
+                el.account_number,
+                el.order_number,
+                el.box.section.area.site.name,
+                el.box.section.area.name,
+                el.request_by,
+                el.request_on,
+                el.box.section.name]
+            ws.append(new_row)
+        
+        
+        tab = Table(displayName="Table1", ref="A2:AA"+str(row_count+2))
+        labels = ['Doc ID',	
+                'Box N.',	
+                'Città',	
+                'Nazione',	
+                'Gruppo / Dipartimento',	
+                'Codice archivio',	
+                'Periodo di conservazione', 
+                'Descrizione del codice archivio',	
+                'Data da',	
+                'Data a',	
+                'N. progetto',	
+                'Nome del progetto',	
+                'Descrizione',	
+                'Riferimento di attivazione',	
+                'Data di attivazione',
+                'GG  conservazione',
+                'Data distruzione', 
+                'Livello di sicurezza',	
+                'Numero di conto',	
+                'Commessa N.',	
+                'Archivio',	
+                'Stanza',	
+                'Richiedente',
+                'data ritiro',	
+                'Scaffale N.', 
+                'Persona',
+                'Data']
+        # Add a default style with striped rows and banded columns
+        style = TableStyleInfo(name="TableStyleMedium9", 
+                                #showFirstColumn=False,
+                                #showLastColumn=False, 
+                                
+                                #showColumnStripes=True,
+                                showRowStripes=True)
+        tab.tableStyleInfo = style 
 
-    '''
-    Table must be added using ws.add_table() method to avoid duplicate names.
-    Using this method ensures table name is unque through out defined names and all other table name. 
-    '''
-    #tab.headerRowCount = False  
-    tab._initialise_columns()
-    for column, value in zip(tab.tableColumns, labels):
-        column.name = value
+        '''
+        Table must be added using ws.add_table() method to avoid duplicate names.
+        Using this method ensures table name is unque through out defined names and all other table name. 
+        '''
+        #tab.headerRowCount = False  
+        tab._initialise_columns()
+        for column, value in zip(tab.tableColumns, labels):
+            column.name = value
 
-    ws.add_table(tab)
-    wb.save('app/xlsx/export_search.xlsx')    
-    #b = BytesIO(open(outfile,'rb'))
-        #outfile.seek(0)
-        #outfile.close()
-           
-    return send_file('xlsx/export_search.xlsx', as_attachment=True, download_name='ADM Search Export.xlsx')
-    
+        ws.add_table(tab)
+        wb.save('app/xlsx/export_search.xlsx')    
+        #b = BytesIO(open(outfile,'rb'))
+            #outfile.seek(0)
+            #outfile.close()
+            
+        return send_file('xlsx/export_search.xlsx', as_attachment=True, download_name='ADM Search Export.xlsx')
+    except Exception as e:
+        flash('254 Export Error:', e)
+        return False
 
 
 def write_csv(query):

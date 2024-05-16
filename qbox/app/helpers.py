@@ -16,6 +16,9 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 def exportexcel(query):
     try:
         records = query[1]
+        if len(records) > 5000:
+            flash("Selected All: " + str(len(records)),'warning')
+            return False
         wb = load_workbook('app/xlsx/Export.xlsx')
         ws = wb.active
         row_count = 0

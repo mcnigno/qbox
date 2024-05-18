@@ -15,7 +15,7 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 
 def exportexcel(query):
     try:
-        records = query[1]
+        records = query
         if len(records) > 5000:
             flash("Selected All: " + str(len(records)),'warning')
             return False
@@ -1485,14 +1485,20 @@ def chart_to_csv(title,param):
     #filtered_records = db.session.query(Site).filter(Site.name.contains(param)).all()
     print('-*--* -/* - *-TITLE , PARAM +--++ ',title,param)
     if title == 'site':
-        filtered_records = db.session.query(Volume).join(Box,Section,Area,Site).filter(Site.name == param).all()
+        filtered_records = db.session.query(Volume).join(Box,Section,Area,Site).filter(
+            Site.name == param).all()
     elif title == 'group':
-        filtered_records = db.session.query(Volume).join(Group).filter(Group.name == param).all()
+        filtered_records = db.session.query(Volume).join(Group).filter(
+            Group.name == param,
+            Site.name != 'X - Not Found').all()
     elif title == 'year':
-        filtered_records = db.session.query(Volume).filter(Volume.endlife_date.year == param).all()
+        filtered_records = db.session.query(Volume).filter(
+            Volume.endlife_date.year == param,
+            Site.name != 'X - Not Found').all()
         print('Volume for this year:',title, len(filtered_records))
 
-    
+    return exportexcel(filtered_records)
+    '''
     with open('app/static/downloads/{}_result.csv'.format(title),'w') as outfile: 
         outcsv = csv.writer(outfile)
         if len(filtered_records) > 3000:    
@@ -1540,6 +1546,7 @@ def chart_to_csv(title,param):
             return send_file('static/downloads/{}_result.csv'.format(title), as_attachment=True, download_name='{}_result.csv'.format(title))
         
         return False
+        '''
 
 
 def import_new_documents():

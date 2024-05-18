@@ -17,23 +17,88 @@
     
 }
 .index-box {
-    background: #1e90ff;
+    
     color: white;
+    padding-top: 48px; 
+    padding-bottom: 48px;
 }
 .index-title{
-    margin-top: 0px !important;
+    margin-top: 30px !important;
     margin-bottom: 0px !important;
+    font-size: 60px !important;
+   
+    color: #ffb347 !important;
+    
+    
 }
 .index-subtitle{
-    font-size: small;
+    font-size: 13px;
     
     margin-top: 0px !important;
-    margin-bottom: 30px !important;
+    margin-bottom: 3px !important;
 }
 .index-login a{
     color: white;
 }
 .jumbotron.index-table{
     
-    height: 600px;
+    height: 530px;
+    
+}
+.index-tabledata{
+    background-color: #1e90ff;
+}
+.jumbotron.index-box{
+    
+    background-color: #ffb347;
+    background-image: url('../img/background-01.jpg');
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+.q-logo{
+    float: left;
+}
+img.qlogo-img{
+    margin-bottom: 70px;
+    float: inline-end;
+    width: 70px;
+    
+}
+.col-sm-6.qlogo-img{
+    min-height: 180px;
+}
+span#basic-addon1{
+    background: #d2d2d2;
+    color: #443e46;
+}
+.export-btn{
+    background-color: #ce203b;
+    border-color: #ce203b;
+    float: inline-end;
+}
+.table-footer{
+    margin: 0;
+}
+.tabulator-headers{
+    color: #ce203b;
+    background-color: rgb(66, 26, 26);
+}
+.tabulator-col-content{
+    background-color: rgb(210, 210, 210);
+}
+.lib-logo{
+    float: inline-start;
+    margin-right: 35px;
+    margin-bottom: 0px;
+}
+.navbar-inverse {
+    background-color: #ffb347;
+    border-color: #ffb347;
+}
+.navbar-inverse .navbar-nav>li>a {
+    color: #363636;
+}
+
+.navbar-brand>img {
+    height: 36px;
 }

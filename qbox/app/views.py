@@ -465,7 +465,7 @@ class VolumeView(ModelView):
         print(self._filters, type(self._filters)) 
         self.update_redirect()
         lst = self.datamodel.query(self._filters)
-        resp = exportexcel(lst) 
+        resp = exportexcel(lst[1]) 
         if resp:
             return resp
         return redirect(self.get_redirect())

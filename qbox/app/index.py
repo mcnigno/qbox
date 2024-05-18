@@ -100,7 +100,7 @@ class QboxIndexView(IndexView):
           session.rollback()
           session.remove()
           flash('144 Error Exporting','warning')
-          return redirect(self.get_redirect())
+          return redirect(self.get_redirect()) 
     
     
     

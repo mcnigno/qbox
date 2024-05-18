@@ -2,19 +2,38 @@
 {% block content %}
 <div class="jumbotron index-box">
   <div class="container">
-    <div class="col-sm-6">
-      <img src="{{url_for('static',filename='img/Nada_logo.png')}}" alt="" width="80%">
+    <div class="col-sm-6 ">
+
+      <div class="container" style="padding: 3;">
+        
+        <img class="lib-logo" src="{{url_for('static',filename='img/Library_logo.png')}}" alt="" width="140px">
+        
+        
+          <h1 class="index-title">{{_("ADM")}}</h1>
+          <h3 class="index-subtitle">ARCHIVE DOCUMENT</h3>
+          <h3 class="index-subtitle">MANAGEMENT</h3> 
+        </div>
+      
+      
+      
+       
+      
+      
+      
     </div>
-    <div class="col-sm-6">
-      <h1 class="index-title">{{_("NADA")}}</h1>
-    <h3 class="index-subtitle">NATIVE DOCUMENT ARCHIVE</h3> 
+    <div class="col-sm-6 qlogo-img">
+      
+        <img src="{{url_for('static',filename='img/Q_logo.png')}}" alt="" width="50px" class="qlogo-img"> 
+      
     </div>
+    
+
      
 {% if not current_user.is_anonymous %}
 <form>
   <div class="col-sm-6">
     <div class="input-group" style="margin-bottom: 10px;">
-      <span class="input-group-addon" id="basic-addon1">Project</span>
+      <span class="input-group-addon" id="basic-addon1">PROJECT</span>
       <input class="form-control" type="search" 
           name="project" placeholder="Filter By Project Number" 
           hx-post="/dashboard/index" 
@@ -27,7 +46,7 @@
   </div>
   <div class="col-sm-6">
     <div class="input-group">
-      <span class="input-group-addon" id="basic-addon1">Document</span>
+      <span class="input-group-addon" id="basic-addon1">DOCUMENT</span>
       <input class="form-control" type="search" 
           name="name" placeholder="Filter By Document Content" 
           hx-post="/dashboard/index" 
@@ -48,12 +67,20 @@
   </div>
 </div>
 <div class="jumbotron index-table">
-  <div id="index-tabledata"></div>
-  <div>
-    <button style="float: right; " class="btn btn-primary" onclick='table.download("csv", "data.csv",";");'><i class="fa-regular fa-file-excel"><span style="margin: 10px;">Download</span>  </i></button>
+  <div id="index-tabledata">
   </div>
-
+  <div class="table-footer">
+    <div class="col-sm-9">
+      <small>* Query Limit 30K</small>
+    </div>
+    <div class="col-sm-3 ">
+      <button " class="btn btn-primary export-btn" onclick='table.download("csv", "data.csv",";");'><i class="fa-regular fa-file-excel "><span style="margin: 10px;">Export</span>  </i></button>
+    </div>
+    
+  </div>
 </div>
+
+
 
 <div class="jumbotron">
   <div class="row">
@@ -145,7 +172,7 @@
       return "<i class='fa fa-print'></i>";
     };
     var table = new Tabulator("#index-tabledata", {
-        maxHeight:"100%",
+        maxHeight:"400px",
         rowHeight:40,
         data:tabledata, //assign data to table
         columns:[

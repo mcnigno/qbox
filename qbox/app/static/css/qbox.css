@@ -25,9 +25,8 @@
 .index-title{
     margin-top: 30px !important;
     margin-bottom: 0px !important;
-    font-size: 60px !important;
-   
-    color: #ffb347 !important;
+    font-size: 45px !important;
+    color: #ffffff !important;
     
     
 }
@@ -41,64 +40,149 @@
     color: white;
 }
 .jumbotron.index-table{
-    
+    border-top-right-radius: 0;
+    border-top-left-radius: 0;
+    background-color: #154b7a;
     height: 530px;
+    padding: 15px;
     
 }
 .index-tabledata{
     background-color: #1e90ff;
 }
 .jumbotron.index-box{
-    
-    background-color: #ffb347;
-    background-image: url('../img/background-01.jpg');
-    background-repeat: no-repeat;
-    background-size: contain;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0; 
+    background-color: #e2e2e2;
+    background-image: url('../img/background-012.jpeg');
+    background-repeat: round;
+    background-size: cover;
+    padding: 0;
+    min-height: 265px;
+    margin-bottom: -1px;
 }
 .q-logo{
     float: left;
 }
 img.qlogo-img{
-    margin-bottom: 70px;
+    margin-bottom: 20px;
     float: inline-end;
     width: 70px;
     
 }
 .col-sm-6.qlogo-img{
-    min-height: 180px;
+    min-height: 150px;
+    width: 60%;
 }
 span#basic-addon1{
-    background: #d2d2d2;
-    color: #443e46;
+    text-align: left;
+    background: #00000094;
+    color: #ffffff;
+    min-width: 110px;
+    border: 1px;
 }
 .export-btn{
-    background-color: #ce203b;
-    border-color: #ce203b;
+    background-color: #bf2b35;
+    border-color: #bf2b35;
     float: inline-end;
 }
 .table-footer{
     margin: 0;
 }
 .tabulator-headers{
-    color: #ce203b;
-    background-color: rgb(66, 26, 26);
+    color: #ffffff;
+    
 }
 .tabulator-col-content{
-    background-color: rgb(210, 210, 210);
+    background-color: rgb(0 149 135);
 }
 .lib-logo{
+    margin-top: -14px;
+    /* margin: -33px; */
+    margin-left: 73px;
+    /* position: absolute; */
+    margin-right: 9px;
+    width: 115px;
     float: inline-start;
-    margin-right: 35px;
-    margin-bottom: 0px;
 }
 .navbar-inverse {
-    background-color: #ffb347;
-    border-color: #ffb347;
+    background-color: #bf2b35;
+    border-color: #bf2b35;
 }
 .navbar-inverse .navbar-nav>li>a {
-    color: #363636;
+    color: white;
 }
 
 .navbar-brand>img {
-    height: 36px;
+    height: 50px;
+    margin-bottom: 10px;
+}
+.navbar-brand{
+    padding: 0 !important;
+}
+.tabulator{
+    background-color: #eeeeee !important;
+}
+.panel-primary>.panel-heading {
+    color: #fff;
+    background-color: #4b4b4b;
+    border-color: #4b4b4b;
+}
+.panel-primary {
+    border-color: #4b4b4b;
+}
+
+.btn-chart{
+    background-color: #009587;
+    border-color: #009587;
+    color: #ffffff;
+    min-width: 130px;
+}
+.btn-chart >i{
+    color: #ffc977;
+    margin-right: 5px;
+}
+input#prj_input.form-control{
+    text-transform: uppercase;
+    background-color: #FFFFFB;
+    color: #000000;
+    max-width: 190px;
+    min-width: 144px;
+}
+input#doc_input.form-control{
+    text-transform: uppercase;
+    background-color: #FFFFFB;
+    color: #000000;
+    min-width: 290px;
+}
+.adm-logo{
+    width: 35%;
+}
+.search-tabulator{
+    float: inline-start;
+    padding-left: 31px;
+    margin: -31px;
+    max-width: 520px;
+    margin-top: 115px;
+}
+.chart-container.container {
+    margin-left: 75px;
+    margin-top: 25px;
+    position: relative;
+    height: 95vh;
+    width: 55vw;
+}
+.tabulator {
+    color: #06284b;
+    background: #1961ab !important;
+    max-height: 480px;
+}
+.row-chart{
+    color: white;
+}
+
+
+
+.tabulator-row-odd{
+    background-color: #0095860d !important;
 }

@@ -1,0 +1,60 @@
+<script>
+    if (document.querySelector(".tabulator-headers")){
+        ///console.log('Table Found!')
+
+        var tabledata = {{ ie_tabledata |tojson |safe}};
+        table.setData(tabledata);
+    }
+    else {
+        ///console.log('Table Not Found!')
+        table.destroy()
+        var tabledata = {{ ie_tabledata |tojson |safe}}
+        var printIcon = function(cell, formatterParams, onRendered){ //plain text value
+            return "<i class='fa fa-print'></i>";
+            };
+        var table = new Tabulator("#index-tabledata", {
+                        maxHeight:"480px",
+                        rowHeight:40,
+                        data:tabledata, //assign data to table
+                        columns:[
+                        {title:"Project", field:"Project", sorter:"string", width:100, cellClick:function(e, cell){console.log("cell click")},},
+                            {title:"Document", field:"Name", sorter:"string", width:800},
+                            //{title:"Type", field:"Type", sorter:"number", width:100},
+                            
+                            {title:"Group", field:"Group", width:240},
+                            //{title:"Due Date", field:"due_date", sorter:"date", hozAlign:"center", width:100,formatter:"datetime", formatterParams:{
+                            //  inputFormat:"yyyy-MM-dd",
+                            //  outputFormat:"dd/MM/yyyy",
+                            //  invalidPlaceholder:"(invalid date)",
+                            //  timezone:"America/Los_Angeles",
+                            //}},
+                            //{formatter:printIcon, width:40, hozAlign:"center", cellClick:function(e, cell){alert("Printing row data for: " + cell.getRow().getData().name)}},
+                        ], //create columns from data field names
+                        columnDefaults:{
+                        tooltip:function(e, cell, onRendered){
+                            //e - mouseover event
+                            //cell - cell component
+                            //onRendered - onRendered callback registration function
+                            
+                            var el = document.createElement("h2");
+                            el.style.backgroundColor = "white";
+                            el.innerText = cell.getColumn().getField() + " - " + cell.getValue(); //return cells "field - value";
+                            
+                            return el; 
+                        },
+                        }
+                    
+                    });
+        table.on("rowClick", function(e, row){
+        //e - the click event object
+        //row - row component
+        let url = "/volumeview/show/"+row._row.data.id
+        window.open(url, '_blank');
+        console.log('the row', row)
+        tt= row
+        });
+
+    }
+    
+    
+</script>

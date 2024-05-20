@@ -419,18 +419,19 @@ class VolumeView(ModelView):
     edit_title = 'Edit Document'
     list_title = 'List Documents'
     
-    list_columns = ['project.code', 'name', 'endlife_date', 'days_left','position',]
+    list_columns = ['project.code', 'name','group']
     add_columns = ['box','project','type','group', 'name','date_start','date_end','available','active']
-    show_columns = ['id','box.id','box','box.section.area.site','box.section.area','box.section','project.account','project', 'type', 'group', 'name','request_by','date_start','date_end','activation_date','endlife_date','available','active']
+    show_columns = ['box','box.section.area.site','box.section.area','box.section','project.account','project', 'type', 'group', 'name','request_by','date_start','date_end','activation_date','endlife_date','available','active']
     edit_columns = ['box','project','type','group', 'name','activation_date','available','active'] 
     
     
     label_columns = {
         'project.account': 'Account',
+        'project.code': 'Project',
         'box.section.area.site': 'Site',
         'box.section.area': 'Area',
         'box.section': 'Section',
-        'name': 'Content'
+        'name': 'Document'
         
     }
     

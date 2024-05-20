@@ -27,7 +27,7 @@ CSRF_ENABLED = True
 APP_NAME = "Qbox"
 
 # Uncomment to setup Setup an App icon
-APP_ICON = "/static/img/Q_logo.png"
+APP_ICON = "/static/img/Q_logo.png" 
 
 # ----------------------------------------------------
 # AUTHENTICATION CONFIG

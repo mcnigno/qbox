@@ -1,0 +1,79 @@
+<div id="index-tabledata">
+<div class="row-chart">
+    
+    <div class="col-md-6">
+      <div class="chart-container container" style="position: relative; height:45vh; width:35vw" >
+        <canvas id="siteChart" ></canvas>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Site</th>
+              <th>Box</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for line in box_site_list %}
+            <tr>
+            <td>{{line[0]}}</td>
+            <td>{{line[1]}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <div>
+          <h3 style="text-align: center;">Total: {{'{0:0,.0f}'.format(all_box)}}</h3>
+        </div>
+      </div>
+    </div> 
+  </div>
+</div>
+
+  <script>
+
+var ctx_site = document.getElementById('siteChart');
+  
+var data = {{ box_site_chart_data |tojson | safe }};
+
+if (mg) {
+  mg.destroy();
+  console.log('mg destroyed!');
+}
+
+
+var mg = new Chart(ctx_site, {
+type: 'doughnut',
+data: data,
+options: {
+    onClick: (event, elements, chart) => {
+    const i = elements[0].index;
+    
+    if (elements[0]) {            
+        const i = elements[0].index;
+        const di = elements[0].datasetIndex;
+        //alert(chart.data.labels[i] + ': ' + chart.data.datasets[di].label);
+        //document.getElementById('tag-id').innerHTML = '<div hx-get="/dashboard/type/'+chart.data.labels[i] +'" hx-trigger="load">'+ i +' data</div>';
+        //htmx.process(document.getElementById('tag-id'));
+        var label = chart.data.labels[i];
+        window.open(`/dashboard/chart/site/${label}`);
+        }
+    },
+    
+    plugins: {
+        legend: {
+            display: true,
+            position: 'bottom',
+            labels: {
+              color: 'white'
+            }
+            ,
+            
+            
+        }
+    }
+}
+});
+  </script>

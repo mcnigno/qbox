@@ -2,11 +2,11 @@
 {% block content %}
 <div class="jumbotron index-box">
   <div class="container">
-    <div class="col-sm-6 ">
+    <div class="col-sm-6 adm-logo">
 
       <div class="container" style="padding: 3;">
         
-        <img class="lib-logo" src="{{url_for('static',filename='img/Library_logo.png')}}" alt="" width="140px">
+        <img class="lib-logo" src="{{url_for('static',filename='img/search_logo.png')}}" alt="" width="140px">
         
         
           <h1 class="index-title">{{_("ADM")}}</h1>
@@ -23,51 +23,69 @@
     </div>
     <div class="col-sm-6 qlogo-img">
       
-        <img src="{{url_for('static',filename='img/Q_logo.png')}}" alt="" width="50px" class="qlogo-img"> 
-      
-    </div>
+        
+        <div class="row">
+          <div class="col-sm-3 ">
+            <button type="button" class="btn btn-primary btn-chart" hx-get="/chart/site" hx-target="#index-tabledata" hx-swap="innerHTML">
+              <i class="fa-solid fa-chart-column"></i> Location   
+            </button>
+          </div>
+          <div class="col-sm-3 ">
+            <button type="button" class="btn btn-primary btn-chart" hx-get="/chart/group" hx-target="#index-tabledata" hx-swap="innerHTML">
+              <i class="fa-solid fa-chart-column"></i> Department
+            </button>
+          </div>
+          <div class="col-sm-3 ">
+            <button type="button" class="btn btn-primary btn-chart" hx-get="/chart/site" hx-target="#index-tabledata" hx-swap="innerHTML">
+              <i class="fa-solid fa-chart-column"></i> Due Date
+            </button>
+          </div>
+          
+
+
+        </div>
     
 
+    
+    
      
-{% if not current_user.is_anonymous %}
-<form>
-  <div class="col-sm-6">
-    <div class="input-group" style="margin-bottom: 10px;">
-      <span class="input-group-addon" id="basic-addon1">PROJECT</span>
-      <input class="form-control" type="search" 
-          name="project" placeholder="Filter By Project Number" 
-          hx-post="/dashboard/index" 
-          hx-trigger="input changed delay:500ms, search" 
-          hx-target="#update-tabledata" 
-          hx-indicator=".htmx-indicator"> 
-    </div>
-    
-  
-  </div>
-  <div class="col-sm-6">
-    <div class="input-group">
-      <span class="input-group-addon" id="basic-addon1">DOCUMENT</span>
-      <input class="form-control" type="search" 
-          name="name" placeholder="Filter By Document Content" 
-          hx-post="/dashboard/index" 
-          hx-trigger="input changed delay:500ms, search" 
-          hx-target="#update-tabledata" 
-          hx-indicator=".htmx-indicator"> 
-    </div>
-  </div>
-</form>
-
-{% else %}
-<div class="index-login">
-    <a href="{{appbuilder.get_url_for_login}}">
-    <i class="fa fa-fw fa-sign-in"></i>Please {{_("Login")}}</a>
-</div>
-{% endif %}
+    {% if not current_user.is_anonymous %}
+    <form>
+      <div class="search-tabulator">
+        <div class="input-group" style="margin-bottom: 10px;">
+          <span class="input-group-addon" id="basic-addon1">PROJECT</span>
+          <input class="form-control" type="search" id="prj_input"
+              name="project" placeholder="Filter By Project Number" 
+              hx-post="/tabledata" 
+              hx-trigger="input changed delay:500ms, search" 
+              hx-target="#update-tabledata" 
+              > 
+        
+          <span class="input-group-addon" id="basic-addon1">DOCUMENT</span>
+          <input class="form-control" type="search" id="doc_input" 
+              name="name" placeholder="Filter By Document Content" 
+              hx-post="/tabledata" 
+              hx-trigger="input changed delay:500ms, search" 
+              hx-target="#update-tabledata" 
+              > 
+        </div>
       
+      </div>
+      
+    </form>
+  </div>
+    {% else %}
+    <div class="index-login">
+        <a href="{{appbuilder.get_url_for_login}}">
+        <i class="fa fa-fw fa-sign-in"></i>Please {{_("Login")}}</a>
+    </div>
+    {% endif %}
+      
+    
   </div>
 </div>
 <div class="jumbotron index-table">
-  <div id="index-tabledata">
+  <div id="index-tabledata" hx-get="/tabledata" hx-trigger="load">
   </div>
   <div class="table-footer">
     <div class="col-sm-9">
@@ -166,116 +184,13 @@
 
   
 <div id="update-tabledata"></div>
-<script>
-    var tabledata = {{ ie_tabledata |tojson |safe}}
-    var printIcon = function(cell, formatterParams, onRendered){ //plain text value
-      return "<i class='fa fa-print'></i>";
-    };
-    var table = new Tabulator("#index-tabledata", {
-        maxHeight:"400px",
-        rowHeight:40,
-        data:tabledata, //assign data to table
-        columns:[
-            {title:"Name", field:"Name", sorter:"string", width:650},
-            {title:"Type", field:"Type", sorter:"number", width:100},
-            {title:"Project", field:"Project", sorter:"string", width:100, cellClick:function(e, cell){console.log("cell click")},},
-            {title:"Group", field:"Group", width:100},
-            {title:"Due Date", field:"due_date", sorter:"date", hozAlign:"center", width:100,formatter:"datetime", formatterParams:{
-              inputFormat:"yyyy-MM-dd",
-              outputFormat:"dd/MM/yyyy",
-              invalidPlaceholder:"(invalid date)",
-              timezone:"America/Los_Angeles",
-            }},
-            {formatter:printIcon, width:40, hozAlign:"center", cellClick:function(e, cell){alert("Printing row data for: " + cell.getRow().getData().name)}},
-        ], //create columns from data field names
-        columnDefaults:{
-          tooltip:function(e, cell, onRendered){
-              //e - mouseover event
-              //cell - cell component
-              //onRendered - onRendered callback registration function
-              
-              var el = document.createElement("h2");
-              el.style.backgroundColor = "white";
-              el.innerText = cell.getColumn().getField() + " - " + cell.getValue(); //return cells "field - value";
-              
-              return el; 
-          },
-        }
-      
-    });
-    table.on("rowClick", function(e, row){
-      //e - the click event object
-      //row - row component
-      let url = "/volumeview/show/"+row._row.data.id
-      window.open(url, '_blank');
-      console.log('the row', row)
-      tt= row
-    });
-</script>
+
 <script>
         
 
-  const ctx_group = document.getElementById('groupChart');
   
-  var group_data = {{ doc_group_chart_data |tojson | safe }};
 
-  var mb = new Chart(ctx_group, {
-    type: 'doughnut',
-    data: group_data,
-    options: {
-      onClick: (event, elements, chart) => {
-        const i = elements[0].index;
-        
-        if (elements[0]) {            
-           const i = elements[0].index;
-           const di = elements[0].datasetIndex;
-           //alert(chart.data.labels[i] + ': ' + chart.data.datasets[di].label);
-           //document.getElementById('tag-id').innerHTML = '<div hx-get="/dashboard/type/'+chart.data.labels[i] +'" hx-trigger="load">'+ i +' data</div>';
-           //htmx.process(document.getElementById('tag-id'));
-           var label = chart.data.labels[i];
-           window.open(`/dashboard/chart/group/${label}`);
-        }
-      },
-      plugins: {
-          legend: {
-              display: true,
-              position: 'bottom',
-              
-          }
-      }
-    }
-  });
-
-  const ctx_site = document.getElementById('siteChart');
   
-  var data = {{ box_site_chart_data |tojson | safe }};
-
-  var mg = new Chart(ctx_site, {
-    type: 'doughnut',
-    data: data,
-    options: {
-      onClick: (event, elements, chart) => {
-        const i = elements[0].index;
-        
-        if (elements[0]) {            
-           const i = elements[0].index;
-           const di = elements[0].datasetIndex;
-           //alert(chart.data.labels[i] + ': ' + chart.data.datasets[di].label);
-           //document.getElementById('tag-id').innerHTML = '<div hx-get="/dashboard/type/'+chart.data.labels[i] +'" hx-trigger="load">'+ i +' data</div>';
-           //htmx.process(document.getElementById('tag-id'));
-           var label = chart.data.labels[i];
-           window.open(`/dashboard/chart/site/${label}`);
-        }
-      },
-      plugins: {
-          legend: {
-              display: true,
-              position: 'bottom',
-              
-          }
-      }
-    }
-  });
 
    
   const ctx2 = document.getElementById('duedateChart');

@@ -175,10 +175,11 @@ input#doc_input.form-control{
 .tabulator {
     color: #06284b;
     background: #1961ab !important;
-    max-height: 480px;
+    height: 480px;
 }
 .row-chart{
     color: white;
+    height: 478px;
 }
 
 

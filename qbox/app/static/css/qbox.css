@@ -45,6 +45,8 @@
     background-color: #154b7a;
     height: 530px;
     padding: 15px;
+    margin-bottom: 0;
+    padding-bottom: 0;
     
 }
 .index-tabledata{
@@ -180,10 +182,47 @@ input#doc_input.form-control{
 .row-chart{
     color: white;
     height: 478px;
+    display: flex;
 }
 
 
 
 .tabulator-row-odd{
     background-color: #0095860d !important;
+}
+.duedate-chart{
+    margin-left: 50px;
+    float: inline-start;
+
+}
+.duedateStatus-chart{
+    margin-left: 10px;
+    margin-top:35px;
+    
+    
+}
+.docgroup-chart{
+    margin-left: 25px;
+}
+.export-row >a{
+    color: white;
+    font-size: 20px;
+    
+}
+.export-row >a >i{
+    color: white;
+    margin-top: 55px;
+    margin-right: 10px;
+    
+}
+.table-footer{
+    text-align: center;
+    background-color: #b2b2b2;
+    max-height: 20px;
+}
+.ten-logo{
+    
+    float: inline-end;
+    margin-top: -130px;
+    margin-right: 69px;
 }

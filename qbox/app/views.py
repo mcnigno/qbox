@@ -47,8 +47,27 @@ def month_last_day(d):
 
 """
 # Endpoint per gestire la richiesta con parametro dalla URL
-from .helpers import chart_to_csv
+from .helpers import chart_to_csv, to_destroy_export, exportexcel
 from flask import url_for
+
+
+class Export(BaseView):
+    route_base = '/export'
+    allow_browser_login = True
+    
+    @expose('/endlife/approval') 
+    @has_access
+    def endlife(self):
+        return to_destroy_export() 
+    
+    @expose('/endlife/docs') 
+    @has_access
+    def endlife(self):
+        query = db.session.query(Volume).filter(Volume.endlife_date < datetime.today()).all()
+        return exportexcel(query)
+        
+
+
 
 class Dashboard(BaseView):
     route_base = '/dashboard'
@@ -461,8 +480,6 @@ class VolumeView(ModelView):
     '''
     @action(name="test",text= "Export Search", icon=  "fa-rocket" , single=False)
     def test(self, items):
-        print()
-        print('***********************************')
         print(self._filters, type(self._filters)) 
         self.update_redirect()
         lst = self.datamodel.query(self._filters)
@@ -470,17 +487,6 @@ class VolumeView(ModelView):
         if resp:
             return resp
         return redirect(self.get_redirect())
-    
-    @action(name="filter",text= "Show Filters", icon=  "fa-rocket" , single=False)
-    def filter(self, items):
-        print()
-        print('***********************************')
-        
-        
-        print(self._filters, type(self._filters))
-        #self._filters = [['name', 'like', f'%ARI%']]
-        return redirect(self.get_redirect())
-        
     
     def pre_add(self, item):
         item.activation_date = item.date_end + timedelta(days=1)
@@ -591,9 +597,10 @@ class ProjectView(ModelView):
     datamodel = SQLAInterface(Project)
     list_columns = ['code','name'] 
     add_columns = ['account','code','name']
-    show_columns = ['id', 'name', 'color']
+    show_columns = ['id', 'name', 'color','note']
     edit_columns = ['name', 'color','code']
     
+    search_columns = ['id','code','name','note']
 
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
     def muldelete(self, items):
@@ -644,7 +651,9 @@ appbuilder.add_view(TypeView, name="Type", icon="fa fa-edit", category_icon='fa 
 appbuilder.add_view(GroupView, name="Group", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
 appbuilder.add_view(ProjectView, name="Project", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
 
-#appbuilder.add_link('Dashboard','/dashboard/home','fa fa-edit')
+appbuilder.add_view_no_menu(Export)
+appbuilder.add_link('Export','/export/endlife/approval','fa fa-edit','Endlife for Approval (GTF-GPS-COR-24036)','Export','fa fa-edit')
+appbuilder.add_link('Export','/export/endlife/docs','fa fa-edit','Endlife Documents','Export','fa fa-edit')
 
 appbuilder.add_view_no_menu(GroupView)
 appbuilder.add_view_no_menu(TypeView)
@@ -673,7 +682,8 @@ def page_not_found(e):
 
 from .helpers import load_master_3A, project_mass_color, load_master_30K, update_endlife, update_date2
 from .helpers import active_box, notfound_box, load_notfound, update_position, update_desc, load_volumes
-from .helpers import update_request_by,import_new_documents,strip_box_code
+from .helpers import update_request_by,import_new_documents,strip_box_code, project_detail, to_destroy_export
+from .helpers import client_from_prj_note
 #project_mass_color()
 db.create_all() 
 #load_master_3A() 
@@ -689,4 +699,6 @@ db.create_all()
 #update_request_by()
 #import_new_documents()
 #strip_box_code()   
-
+#project_detail() 
+#to_destroy_export()
+#client_from_prj_note()

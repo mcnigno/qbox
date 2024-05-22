@@ -7,7 +7,9 @@
     }
     else {
         ///console.log('Table Not Found!')
-        table.destroy()
+        if (table){
+            table.destroy()
+        }
         var tabledata = {{ ie_tabledata |tojson |safe}}
         var printIcon = function(cell, formatterParams, onRendered){ //plain text value
             return "<i class='fa fa-print'></i>";

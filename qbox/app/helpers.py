@@ -16,8 +16,8 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 def exportexcel(query):
     try:
         records = query
-        if len(records) > 5000:
-            flash("Selected All: " + str(len(records)),'warning')
+        if len(records) > 15000:
+            flash("Limit of 15K reached: " + str(len(records)),'info')
             return False
         wb = load_workbook('app/xlsx/Export.xlsx')
         ws = wb.active
@@ -114,7 +114,7 @@ def exportexcel(query):
 def write_csv(query):
     with open('app/static/downloads/result.csv','w') as outfile: 
         outcsv = csv.writer(outfile, dialect='excel', lineterminator="\n", quotechar='"')
-        if len(query[1]) > 1500:    
+        if len(query[1]) > 20000:    
             flash('Error: Too many Records selected: '+ str(len(query[1])),'info' )
             return False
         #print(query)
@@ -876,7 +876,7 @@ def update_endlife():
             count += 1
             days = v.type.retention_days
             #print('hold date:', v.activation_date)
-            v.activation_date = activation_date(v.project.code)
+            #v.activation_date = activation_date(v.project.code)
             v.endlife_date = v.activation_date + timedelta(days=days)
             v.changed_by_fk = '1'
             print(count,v.id, v.activation_date, v.endlife_date)
@@ -1576,16 +1576,127 @@ def import_new_documents():
     
     
 def strip_box_code():
-    boxes = db.session.query(Section).all()   
+    boxes = db.session.query(Project).all()   
     print(len(boxes))
     count = 0
     for box in boxes:
         count += 1
         
-        new_name = box.name.strip()
-        box.name = new_name
+        new_name = box.code.strip()
+        box.code = new_name
         box.changed_by_fk = '1'
         
         print(count,'/',len(boxes))
     db.session.commit()
+
+
+def project_detail():
+    wb = load_workbook('app/xlsx/project_list3.xlsx')
+    ws = wb.active
+    count = 0
+    count_found = 0
+    for row in ws.iter_rows(min_row=2):
+        if row[2].value is not None:
+            count += 1
+            obj = ''
+            
+            labels = ['No.',
+                    'Contract Entity',
+                    'Project Number',	
+                    'Project Manager',
+                    'OEC',
+                    'Client name',
+                    'Project name',
+                    'Country',
+                    'Site',
+                    'Contract Value - MMUSD',
+                    'Project Category',
+                    'SoW',
+                    'Association Type',
+                    'Award Date',
+                    'Completion Date (planned)',
+                    'Dif. Award-> Completion (Months)',
+                    'Status']
+            for l in labels:
+                
+                #print(l,row[labels.index(l)].value)
+                obj += l+': '+ str(row[labels.index(l)].value) + '\n'
+            
+            print(obj)
+            project_number = str(row[2].value).strip()
+            project_name = row[6].value
+            project_date = row[14].value
+            project_date_from = row[13].value
+            
+            prj = db.session.query(Project).filter(Project.code == project_number).first()
+            if prj:
+                count_found += 1
+                print('Project Found', project_number)
+                prj.name = project_name
+                prj.note = obj
+                prj.changed_by_fk = '1'
+                
+                db.session.commit()
+                prj_docs = db.session.query(Volume).filter(Volume.project_id == prj.id).all()
+                
+                for doc in prj_docs:
+                    doc.date_start = project_date_from
+                    doc.date_end = project_date
+                    doc.activation_date = project_date
+                    doc.changed_by_fk = '1'
+                    
+                
+            else:
+                print('Project Not Found:', project_number)
     
+    db.session.commit()
+    print(' -+-+-+-+-+ RESULT +-+-+-+-')
+    print('Count:',count,'Found:',count_found)
+    
+    
+def to_destroy_export():
+    wb = load_workbook('app/xlsx/GTF-GPS-COR-24036-01.xlsx')
+    ws = wb.active
+    count = 0
+    count_found = 0
+    docs = db.session.query(Volume).filter(Volume.endlife_date < datetime.today()).all()
+    print(len(docs))
+    client_name = ''
+    project_title = ''
+    system = ''
+    volume = ''
+    path = ''
+    for doc in docs:
+        client_name = client_from_prj_note(doc.project.id)
+        new_row = [doc.project.account.name, 
+                   doc.project.code, 
+                   client_name, 
+                   doc.project.name, 
+                   doc.group.name,
+                   system,
+                   volume,
+                   path,
+                   doc.box.name,
+                   doc.type.description,
+                   doc.type.name,
+                   doc.type.retention_code,
+                   doc.date_start,
+                   doc.date_end,
+                   doc.activation_date
+                   ]
+        print(new_row)
+        ws.append(new_row)
+    wb.save('app/xlsx/ADM_GTF-GPS-COR-24036-01b.xlsx')
+    return send_file('xlsx/ADM_GTF-GPS-COR-24036-01.xlsx', as_attachment=True, download_name='ADM_GTF-GPS-COR-24036-01.xlsx')
+
+
+def client_from_prj_note(prj_id):
+    prj = db.session.query(Project).get(prj_id)
+    try:
+        for line in prj.note.splitlines():
+            label, value = line.split(':',1)
+            if label == 'Client name':
+                return value.strip() 
+    except Exception as e:
+        print(e)
+        return ''

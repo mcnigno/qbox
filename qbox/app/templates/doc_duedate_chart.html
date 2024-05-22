@@ -1,9 +1,27 @@
 <div id="index-tabledata">
 <div class="row-chart">
 
-    <div class="chart-container" style="position: relative;">
-      <canvas id="duedateChart" width="100" height="50%"></canvas>
+    <div class="col-sm-6 chart-container duedate-chart" style="position: relative;height:800px; width:100%">
+      <canvas id="duedateChart"></canvas>
+      <div class="row">
+        <div class="col-sm-6 export-row" style="width: 30%;">
+          <a href="/export/endlife/docs"><i class="fa-regular fa-file-excel"></i>Endlife Documents</a>
+        </div>
+        <div class="col-sm-6 export-row" style="width: 70%;">
+          <a href="/export/endlife/approval"><i class="fa-regular fa-file-excel"></i>Endlife for Approval (GTF-GPS-COR-24036)</a>
+        </div>
+
+      </div>
     </div>
+    <div class="col-sm-6 chart-container duedateStatus-chart" style="position: relative;height:300px; width:300px">
+      <canvas id="duedateStutusChart"></canvas>
+        <div style="text-align: center; margin-top:25px">
+          <h4>Actual  Doc: {{all_docs_count}}</h4>
+          <h4>Endlife Doc: {{endlife_docs_count}}</h4>
+        </div>
+    </div>
+  
+  
   </div>
 
 </div>
@@ -43,31 +61,72 @@
         plugins: {
   
           legend: {
-              display: true
+              display: true,
+              color: 'white',
+              labels: {
+                color: 'white'
+              }
           },
           
-          subtitle: {
-              position: 'bottom',
-              display: true,
-              text: 'Custom Chart Subtitle'
-          },
-          title: {
-            position: 'bottom',
-            display: true,
-            text: 'Custom Chart Title'
-          }
+        
         },
         scales: {
           x: {
-            stacked: false
+            stacked: false,
+            ticks: {
+              color: 'white'
+            }
   
           },
           y: {
             stacked: false,
-            beginAtZero: true
+            beginAtZero: true,
+            ticks: {
+              color: 'white'
+            }
+            
           }
         }
       }
     });
   
   </script>
+
+  <script>
+    var ctx_duedateStatus = document.getElementById('duedateStutusChart');
+      
+    var duedateStatus_data = {{ doc_endlife_status_chart |tojson | safe }};
+    if (ds) {
+        ds.destroy();
+        console.log('ds group data destroyed!');
+      }
+    var ds = new Chart(ctx_duedateStatus, {
+    type: 'doughnut',
+    data: duedateStatus_data,
+    options: {
+        onClick: (event, elements, chart) => {
+        const i = elements[0].index;
+        
+        if (elements[0]) {            
+            const i = elements[0].index;
+            const di = elements[0].datasetIndex;
+            //alert(chart.data.labels[i] + ': ' + chart.data.datasets[di].label);
+            //document.getElementById('tag-id').innerHTML = '<div hx-get="/dashboard/type/'+chart.data.labels[i] +'" hx-trigger="load">'+ i +' data</div>';
+            //htmx.process(document.getElementById('tag-id'));
+            var label = chart.data.labels[i];
+            window.open(`/dashboard/chart/group/${label}`);
+        }
+        },
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom',
+                labels: {
+                    color: 'white'
+                }
+                
+            }
+        }
+    }
+    });
+    </script>

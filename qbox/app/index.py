@@ -12,6 +12,7 @@ from sqlalchemy import create_engine
 from config import SQLALCHEMY_DATABASE_URI
 from sqlalchemy import func, or_
 from flask import flash, redirect, request
+from datetime import datetime
  
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
 session_factory = sessionmaker(engine)
@@ -117,7 +118,61 @@ class QboxIndexView(IndexView):
         flash('144 Error Exporting Group:' + str(e),'warning')
         return redirect(self.get_redirect())
     
-    
+    @expose("/chart/duedate")
+    def chart_duedate(self):
+      print('*+++++*** *** CHART DUEDATE FUNNCTION +++++++')
+      session = get_session()
+      try:
+          doc_endlife = session.query(func.year(Volume.endlife_date), func.count(Volume.id), 
+              ).group_by(func.year(Volume.endlife_date)
+              ).all()
+              
+          all_docs_count = session.query(Volume).count()
+          endlife_docs_count = session.query(Volume).filter(
+                                Volume.endlife_date < datetime.today()).count()
+          
+          print('endlife doc count:', endlife_docs_count) 
+              
+          doc_endlife_labels = [x[0] for x in doc_endlife]
+          doc_endlife_data = [x[1] for x in doc_endlife]
+          doc_endlife_chart_data = {
+            'labels': doc_endlife_labels,
+            'datasets': [{
+              'label': 'Documents by endlife',
+              'data': doc_endlife_data,
+              'hoverOffset': 4,
+              'backgroundColor': '#ff6384' 
+            }]
+          }
+          
+          doc_endlife_status_chart = {
+            'labels': ['Actual Documents', 'Endlife Documents'],
+              'datasets': [{
+                'label': 'Documents Stutus',
+                'data': [all_docs_count-endlife_docs_count, endlife_docs_count],
+                'hoverOffset': 4,
+              }]
+          }
+
+          Session.remove()
+        
+          #self.update_redirect()
+          
+          return self.render_template('doc_duedate_chart.html', 
+                                    appbuilder=self.appbuilder,
+                                    all_docs_count=all_docs_count,
+                                    endlife_docs_count=endlife_docs_count,
+                                    doc_endlife_chart_data=doc_endlife_chart_data,
+                                    doc_endlife_status_chart=doc_endlife_status_chart)
+      except Exception as e:
+        print('')
+        print('***************')
+        print('EXception:',e)
+        
+        session.rollback()
+        Session.remove()
+        flash('144 Error Exporting Due DATE:' + str(e),'warning')
+        return redirect(self.get_redirect())
     
     @expose("/chart/site")
     def chart_site(self):

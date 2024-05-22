@@ -21,9 +21,8 @@
       
       
     </div>
-    <div class="col-sm-6 qlogo-img">
-      
-        
+    <div class="col-sm-6 qlogo-img"> 
+            
         <div class="row">
           <div class="col-sm-3 ">
             <button type="button" class="btn btn-primary btn-chart" hx-get="/chart/site" hx-target="#index-tabledata" hx-swap="innerHTML">
@@ -36,7 +35,11 @@
             </button>
           </div>
           <div class="col-sm-3 ">
-            <button type="button" class="btn btn-primary btn-chart" hx-get="/chart/site" hx-target="#index-tabledata" hx-swap="innerHTML">
+            <button type="button" class="btn btn-primary btn-chart" 
+                                  hx-get="/chart/duedate" 
+                                  hx-target="#index-tabledata" 
+                                  hx-swap="innerHTML"
+                                  hx-trigger="load, click">
               <i class="fa-solid fa-chart-column"></i> Due Date
             </button>
           </div>
@@ -85,18 +88,15 @@
   </div>
 </div>
 <div class="jumbotron index-table">
-  <div id="index-tabledata" hx-get="/tabledata" hx-trigger="load">
-  </div>
-  <div class="table-footer">
-    <div class="col-sm-9">
-      <small>* Query Limit 30K</small>
-    </div>
-    <div class="col-sm-3 ">
-      <button " class="btn btn-primary export-btn" onclick='table.download("csv", "data.csv",";");'><i class="fa-regular fa-file-excel "><span style="margin: 10px;">Export</span>  </i></button>
-    </div>
-    
-  </div>
+  <div id="index-tabledata"></div>
 </div>
+
+  
+  <div>
+    <img class="ten-logo" src="{{url_for('static',filename='img/technip_logo.png')}}" alt="" width="140px">
+  </div>
+ 
+
 
 
   

@@ -679,7 +679,7 @@ appbuilder.add_api(VolumeApi)
 
 appbuilder.add_view(AccountView, name="Account", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings')
 appbuilder.add_view(VolumeView, name="Documents", icon="fa fa-edit", category_icon='fa fa-edit', category='Documents') 
-appbuilder.add_view_no_menu(VolumeProView, name="Documents", icon="fa fa-edit", category_icon='fa fa-edit', category='Documents') 
+appbuilder.add_view_no_menu(VolumeProView) 
 
 appbuilder.add_view(BoxView, name="Box", icon="fa fa-edit", category_icon='fa fa-edit', category='Documents') 
 appbuilder.add_view(SiteView, name="Site", icon="fa fa-edit", category_icon='fa fa-edit', category='Logistic') 

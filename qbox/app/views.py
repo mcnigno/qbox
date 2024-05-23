@@ -429,7 +429,42 @@ from io import BytesIO
 from werkzeug.wsgi import FileWrapper
 from datetime import timedelta
 from flask_appbuilder.models.filters import Filters, BaseFilter, FilterRelation, BaseFilterConverter, Optional
- 
+
+class VolumeProView(ModelView):
+    datamodel = SQLAInterface(Volume)
+    
+    add_title = 'Add Document'
+    show_title = 'Show Document'
+    edit_title = 'Edit Document'
+    list_title = 'List Documents'
+    
+    list_columns = ['project.code', 'name','group']
+    add_columns = ['box','project','type','group', 'name','date_start','date_end','available','active']
+    show_columns = ['box','box.section.area.site','box.section.area','box.section','project.account','project', 'type', 'group', 'name','request_by','date_start','date_end','activation_date','endlife_date','available','active']
+    edit_columns = ['box','project','type','group', 'name','activation_date','available','active'] 
+    
+    
+    label_columns = {
+        'project.account': 'Account',
+        'project.code': 'Project',
+        'box.section.area.site': 'Site',
+        'box.section.area': 'Area',
+        'box.section': 'Section',
+        'name': 'Document'
+        
+    }
+     
+    search_columns = ['project', 'type', 'group', 'name', 'date_start', 'date_end', 'endlife_date','box'] 
+    related_views = [MoveView]
+     
+    show_template = 'appbuilder/general/model/show_cascade.html'
+    edit_template = 'appbuilder/general/model/edit_cascade.html'
+    
+    base_order = ('id','desc')
+    
+    
+    #base_permissions = ['can_show','can_list']
+
 class VolumeView(ModelView):
     datamodel = SQLAInterface(Volume)
     
@@ -453,7 +488,7 @@ class VolumeView(ModelView):
         'name': 'Document'
         
     }
-    
+     
     search_columns = ['project', 'type', 'group', 'name', 'date_start', 'date_end', 'endlife_date','box'] 
     related_views = [MoveView]
      
@@ -462,7 +497,8 @@ class VolumeView(ModelView):
     
     base_order = ('id','desc')
     
-    #base_permissions = ['can_show','can_list']
+    
+    base_permissions = ['can_show','can_list']
     
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
     def muldelete(self, items):
@@ -507,7 +543,7 @@ class BoxView(ModelView):
     show_columns = ['id', 'name','section.area.site','section.area' , 'section','active']
     edit_columns = ['name', 'section','active','note']
     
-    related_views = [VolumeView]
+    related_views = [VolumeProView]
      
     show_template = 'appbuilder/general/model/show_cascade.html'
     edit_template = 'appbuilder/general/model/edit_cascade.html'
@@ -643,6 +679,8 @@ appbuilder.add_api(VolumeApi)
 
 appbuilder.add_view(AccountView, name="Account", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings')
 appbuilder.add_view(VolumeView, name="Documents", icon="fa fa-edit", category_icon='fa fa-edit', category='Documents') 
+appbuilder.add_view_no_menu(VolumeProView, name="Documents", icon="fa fa-edit", category_icon='fa fa-edit', category='Documents') 
+
 appbuilder.add_view(BoxView, name="Box", icon="fa fa-edit", category_icon='fa fa-edit', category='Documents') 
 appbuilder.add_view(SiteView, name="Site", icon="fa fa-edit", category_icon='fa fa-edit', category='Logistic') 
 appbuilder.add_view(AreaView, name="Area", icon="fa fa-edit", category_icon='fa fa-edit', category='Logistic') 

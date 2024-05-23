@@ -57,7 +57,7 @@ class Export(BaseView):
     
     @expose('/endlife/approval') 
     @has_access
-    def endlife(self):
+    def approval(self):
         return to_destroy_export() 
     
     @expose('/endlife/docs') 

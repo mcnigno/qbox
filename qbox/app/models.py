@@ -83,7 +83,7 @@ class Section(AuditMixin, Model):
     
 class Box(AuditMixin, Model):
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable = False)
+    name = Column(String(100), nullable = False, )
     section_id = Column(Integer, ForeignKey('section.id'))
     section = relationship(Section, backref='Boxes')
     active = Column(Boolean, default=True)
@@ -91,6 +91,8 @@ class Box(AuditMixin, Model):
     
     def __repr__(self) -> str:
         return self.name
+    
+    
     
     
     

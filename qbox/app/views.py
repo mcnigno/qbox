@@ -533,10 +533,13 @@ class VolumeView(ModelView):
 from flask_appbuilder.forms import BooleanField, StringField,BS3TextAreaFieldWidget, TextAreaField, BS3TextFieldWidget 
 from flask_appbuilder.models.sqla.filters import FilterStartsWith
 from flask_appbuilder.utils.base import gettext
+from flask_appbuilder.views import redirect, abort
+from flask_appbuilder.base import url_for
+from sqlalchemy import cast, Numeric
 
 extra_fields = {'bnotes': TextAreaField('bnotes', widget=BS3TextAreaFieldWidget())} 
 
-class BoxView(ModelView):
+class BoxViewPro(ModelView):
     datamodel = SQLAInterface(Box)
     list_columns = ['name','section.area.site','section.area' ,'active']
     add_columns = ['section','name','note']
@@ -558,12 +561,57 @@ class BoxView(ModelView):
     }
     
     search_exclude_columns = ['box.id','box.name']
+    def pre_add(self, item):
+        print()
+        print()
+        print('*********** PRE ADD ON BOX PRO VIEW')
+        box = db.session.query(Box).filter(Box.name == item.name).first()
+        if box:
+                next_box = db.session.query(Box).order_by(cast(Box.name,Numeric).desc()).first()
+                next_box = int(next_box.name) + 1 
+                raise Exception(f'The box {item.name} already exist. Next Box: {next_box}')
+                #return abort(404, description="This Box Already Exist.")
+                print(url_for('BoxView.show', pk=str(box.id)))
+                #flash('This BOX already Exist','info')
+                #return super().show(box.id)
+                    
+        #return redirect(url_for('BoxView.show', pk=str(box.id)))
+        #return super().pre_add(item)
+
+
+
+
+class BoxView(ModelView):
+    datamodel = SQLAInterface(Box)
+    list_columns = ['name','section.area.site','section.area' ,'active']
+    add_columns = ['section','name','note']
+    show_columns = ['id', 'name','section.area.site','section.area' , 'section','active']
+    edit_columns = ['name', 'section','active','note']
     
+    related_views = [VolumeProView]
+     
+    show_template = 'appbuilder/general/model/show_cascade.html'
+    edit_template = 'appbuilder/general/model/edit_cascade.html'
+    
+    base_order = ('name','desc')
+    
+    base_permissions = ['can_show','can_list']
+    label_columns = {
+        'name': 'Code', 
+        'section.area': 'Area',
+        'section.area.site': 'Site'
+    }
+    
+    search_exclude_columns = ['box.id','box.name']
+    base_permissions = ['can_show','can_list']
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
     def muldelete(self, items):
         self.datamodel.delete_all(items)
         self.update_redirect()
         return redirect(self.get_redirect())
+    
+   
+    
     
     
 class SectionView(ModelView):
@@ -573,7 +621,7 @@ class SectionView(ModelView):
     show_columns = ['id', 'name', 'area','area.site','area.site.id']
     edit_columns = ['name']
     
-    related_views = [BoxView]
+    related_views = [BoxViewPro]
      
     show_template = 'appbuilder/general/model/show_cascade.html'
     edit_template = 'appbuilder/general/model/edit_cascade.html'
@@ -680,7 +728,7 @@ appbuilder.add_api(VolumeApi)
 appbuilder.add_view(AccountView, name="Account", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings')
 appbuilder.add_view(VolumeView, name="Documents", icon="fa fa-edit", category_icon='fa fa-edit', category='Documents') 
 appbuilder.add_view_no_menu(VolumeProView) 
-
+appbuilder.add_view_no_menu(BoxViewPro) 
 appbuilder.add_view(BoxView, name="Box", icon="fa fa-edit", category_icon='fa fa-edit', category='Documents') 
 appbuilder.add_view(SiteView, name="Site", icon="fa fa-edit", category_icon='fa fa-edit', category='Logistic') 
 appbuilder.add_view(AreaView, name="Area", icon="fa fa-edit", category_icon='fa fa-edit', category='Logistic') 

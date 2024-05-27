@@ -14,12 +14,16 @@ from sqlalchemy import func, or_
 from flask import flash, redirect, request
 from datetime import datetime
  
-engine = create_engine(SQLALCHEMY_DATABASE_URI)
-session_factory = sessionmaker(engine)
-Session = scoped_session(session_factory)
+
 
 def get_session():
-  return Session()
+  try:
+    engine = create_engine(SQLALCHEMY_DATABASE_URI)
+    session_factory = sessionmaker(engine)
+    Session = scoped_session(session_factory)
+    return Session()
+  except:
+    return False
 
 class QboxIndexView(IndexView):
     
@@ -27,7 +31,7 @@ class QboxIndexView(IndexView):
     
     @expose("/tabledata", methods=['POST','GET'])
     def tabledata(self):
-      session = get_session()
+      
       search_str = '%%'
       book_search = '%%'
       
@@ -38,6 +42,7 @@ class QboxIndexView(IndexView):
             book_search = '%'+request.form['name']+'%'
       
       try:
+        session = get_session()
         last_entries = session.query(Volume).join(Project
                                           ).order_by(Volume.created_on.desc()
                                           ).filter(Project.code.like(search_str), Volume.name.like(book_search)
@@ -50,7 +55,7 @@ class QboxIndexView(IndexView):
                          'id': v.id, 
                          'due_date': str(v.endlife_date) } for v in last_entries]
         
-        Session.remove()
+        session.close()
         
         self.update_redirect()
         
@@ -66,15 +71,16 @@ class QboxIndexView(IndexView):
                                     )
       except Exception as e:
         session.rollback()
-        Session.remove()
-        flash('144 Error Exporting:' + e,'warning')
+        session.close()
+        #flash('144 Error Exporting:' + e,'warning')
         return redirect(self.get_redirect()) 
     
     @expose("/chart/group")
     def chart_group(self):
       print('*+++++*** *** CHART GROUP FUNNCTION +++++++')
-      session = get_session()
+      
       try:
+          session = get_session()
           # doc per group
           all_doc = session.query(Volume).count()
           doc_group = session.query(Group).all()
@@ -99,7 +105,7 @@ class QboxIndexView(IndexView):
           }
           
           
-          Session.remove()
+          session.close()
         
           #self.update_redirect()
           print('NOT HERE 2 -++--+-+--+--++-+')
@@ -114,15 +120,16 @@ class QboxIndexView(IndexView):
         print('EXception:',e)
         
         session.rollback()
-        Session.remove()
-        flash('144 Error Exporting Group:' + str(e),'warning')
+        session.close()
+        #flash('144 Error Exporting Group:' + str(e),'warning')
         return redirect(self.get_redirect())
     
     @expose("/chart/duedate")
     def chart_duedate(self):
       print('*+++++*** *** CHART DUEDATE FUNNCTION +++++++')
-      session = get_session()
+      
       try:
+          session = get_session()
           doc_endlife = session.query(func.year(Volume.endlife_date), func.count(Volume.id), 
               ).group_by(func.year(Volume.endlife_date)
               ).all()
@@ -154,7 +161,7 @@ class QboxIndexView(IndexView):
               }]
           }
 
-          Session.remove()
+          session.close()
         
           #self.update_redirect()
           
@@ -170,14 +177,14 @@ class QboxIndexView(IndexView):
         print('EXception:',e)
         
         session.rollback()
-        Session.remove()
-        flash('144 Error Exporting Due DATE:' + str(e),'warning')
+        session.close()
+        #flash('144 Error Exporting Due DATE:' + str(e),'warning')
         return redirect(self.get_redirect())
     
     @expose("/chart/site")
     def chart_site(self):
-      session = get_session()
       try:
+        session = get_session()
         all_box = session.query(Box).join(Section,Area,Site).filter(Site.name != 'X - Not Found').count()
         all_doc = session.query(Volume).count()  
         
@@ -193,7 +200,7 @@ class QboxIndexView(IndexView):
             'hoverOffset': 4
           }]
         }
-        Session.remove()
+        session.close()
         
         self.update_redirect()
         return self.render_template('box_site_chart.html', 
@@ -205,8 +212,8 @@ class QboxIndexView(IndexView):
                                     )
       except Exception as e:
         session.rollback()
-        Session.remove()
-        flash('144 Error Exporting Sites:' + str(e),'warning')
+        session.close()
+        #flash('144 Error Exporting Sites:' + str(e),'warning')
         return redirect(self.get_redirect()) 
      
       
@@ -269,7 +276,7 @@ class QboxIndexView(IndexView):
                                               ).limit(100).all()
           ie_tabledata = [{'Project': v.project.code,'Type': v.type.name, 'Name': v.name, 'Group': v.group.name, 'id': v.id, 'due_date': str(v.endlife_date) } for v in last_entries]
           
-          Session.remove()
+          session.close()
           
           self.update_redirect()
           return self.render_template(self.index_template, 
@@ -285,7 +292,7 @@ class QboxIndexView(IndexView):
                                       )
         except Exception as e:
           session.rollback()
-          Session.remove()
+          session.close()
           flash('144 Error Exporting','warning')
           return redirect(self.get_redirect()) 
     

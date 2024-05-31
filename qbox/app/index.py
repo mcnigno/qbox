@@ -293,7 +293,7 @@ class QboxIndexView(IndexView):
         except Exception as e:
           session.rollback()
           session.close()
-          flash('144 Error Exporting','warning')
+          #flash('144 Error Exporting','warning')
           return redirect(self.get_redirect()) 
     
     

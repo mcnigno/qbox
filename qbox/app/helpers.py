@@ -1553,26 +1553,30 @@ def import_new_documents():
     
     wb = load_workbook('app/xlsx/master_6.xlsx', data_only=True)
     ws = wb.active
-    count = 0
+    count_match = 0
+    count_new = 0
     count_tot = 0
     errors = []
     
 
     for row in ws.iter_rows(min_row=3):
+        print(row[0].value)
         count_tot += 1
         site = db.session.query(Site).filter(Site.name == row[19].value).first()
         area = db.session.query(Area).filter(Area.name == row[20].value).first()
-        scaffale = db.session.query(Section).filter(Section.name == row[23].value).first() 
+        section = db.session.query(Section).filter(Section.name == row[23].value).first() 
         box = db.session.query(Box).filter(Box.name == row[0].value).first()
         
-        if box and box.section.name != str(row[23].value).strip():
-            count += 1 
-            print('SCAFFALE ERRATO:',box.name,repr(box.section.name),repr(box.section.name.strip()), repr(str(row[23].value).strip()))
+        if box:
+            print('BOX Exist, position:',box.section.id == section.id)
+            count_match += 1 
+            print(box.name,repr(box.section.name.strip()), repr(str(row[23].value).strip()))
             
         if box is None:
+            count_new += 1
             print('BOX ASSENTE',row[0].value)
     
-    print('Tot:', count_tot, 'New:', count)
+    print('Tot:', count_tot,'Count Match',count_match, 'New:', count_new)
     
     
 def strip_box_code():

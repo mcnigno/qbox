@@ -56,8 +56,8 @@ class AdmFilesModelView(ModelView):
     label_columns = {"file_name": "File Name", "download": "Download"}
     add_columns = ["file", "description"]
     edit_columns = ["file", "description"]
-    list_columns = ["file_name", "download"]
-    show_columns = ["file_name", "download"]
+    list_columns = ["file_name", "description", "download"]
+    show_columns = ["file_name", "description", "download"]
 
 class Export(BaseView):
     route_base = '/export'

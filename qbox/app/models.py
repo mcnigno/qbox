@@ -6,6 +6,9 @@ from flask_appbuilder.models.decorators import renders
 from datetime import datetime
 from sqlalchemy.orm.session import object_session
 from flask_appbuilder.models.decorators import renders
+from flask_appbuilder.filemanager import get_file_original_name
+from flask import url_for
+from markupsafe import Markup
 
 
 """
@@ -21,6 +24,23 @@ def date_csm(date):
     return date.strftime('%d-%m-%Y %H:%M:%S')
 def random_color():
     return 'rgb('+ str(choice(range(0,255))) + ', ' + str(choice(range(0,255)))  + ', ' + str(choice(range(0,255))) + ', 0.5)'
+
+class AdmFiles(AuditMixin, Model):
+    id = Column(Integer, primary_key=True)
+    file = Column(FileColumn, nullable = False)
+    description = Column(Text)
+    active = Column(Boolean, default=True)
+    
+    def download(self):
+        return Markup(
+            '<a href="'
+            + url_for("AdmFilesModelView.download", filename=str(self.file))
+            + '">Download</a>'
+        )
+
+    def file_name(self):
+        return get_file_original_name(str(self.file))
+
 
 class Account(AuditMixin, Model):
     id = Column(Integer, primary_key=True)

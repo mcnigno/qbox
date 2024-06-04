@@ -6,7 +6,7 @@ from flask_appbuilder.actions import action
 
 from . import appbuilder, db
 
-from .models import Account, Project, Site, Area, Section, Box, Type, Group, Volume, Move
+from .models import Account, Project, Site, Area, Section, Box, Type, Group, Volume, Move, AdmFiles
 import calendar
 from datetime import datetime
 from sqlalchemy import func, or_
@@ -47,9 +47,17 @@ def month_last_day(d):
 
 """
 # Endpoint per gestire la richiesta con parametro dalla URL
-from .helpers import chart_to_csv, to_destroy_export, exportexcel
+from .helpers import chart_to_csv, to_destroy_export, exportexcel, export_db
 from flask import url_for
 
+class AdmFilesModelView(ModelView):
+    datamodel = SQLAInterface(AdmFiles)
+
+    label_columns = {"file_name": "File Name", "download": "Download"}
+    add_columns = ["file", "description"]
+    edit_columns = ["file", "description"]
+    list_columns = ["file_name", "download"]
+    show_columns = ["file_name", "download"]
 
 class Export(BaseView):
     route_base = '/export'
@@ -65,6 +73,11 @@ class Export(BaseView):
     def endlife(self):
         query = db.session.query(Volume).filter(Volume.endlife_date < datetime.today()).all()
         return exportexcel(query)
+    
+    @expose('/db/docs') 
+    @has_access
+    def db_docs(self):
+        return export_db()
         
 
 
@@ -429,6 +442,7 @@ from io import BytesIO
 from werkzeug.wsgi import FileWrapper
 from datetime import timedelta
 from flask_appbuilder.models.filters import Filters, BaseFilter, FilterRelation, BaseFilterConverter, Optional
+from flask_appbuilder.models.sqla.filters import FilterNotEqual, FilterNotStartsWith
 
 class VolumeProView(ModelView):
     datamodel = SQLAInterface(Volume)
@@ -496,9 +510,9 @@ class VolumeView(ModelView):
     edit_template = 'appbuilder/general/model/edit_cascade.html'
     
     base_order = ('id','desc')
-    
-    
     base_permissions = ['can_show','can_list']
+    #base_filters = [['box.section.area.site', FilterNotStartsWith, 'X']]
+    
     
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
     def muldelete(self, items):
@@ -722,14 +736,15 @@ class VolumeApi(ModelRestApi):
 
 from flask_appbuilder.api import protect
 
+
         
 appbuilder.add_api(VolumeApi)
 
 appbuilder.add_view(AccountView, name="Account", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings')
-appbuilder.add_view(VolumeView, name="Documents", icon="fa fa-edit", category_icon='fa fa-edit', category='Documents') 
+appbuilder.add_view(VolumeView, name="Documents", icon="fa fa-edit", category_icon='fa fa-edit', category='Storage') 
 appbuilder.add_view_no_menu(VolumeProView) 
 appbuilder.add_view_no_menu(BoxViewPro) 
-appbuilder.add_view(BoxView, name="Box", icon="fa fa-edit", category_icon='fa fa-edit', category='Documents') 
+appbuilder.add_view(BoxView, name="Box", icon="fa fa-edit", category_icon='fa fa-edit', category='Storage') 
 appbuilder.add_view(SiteView, name="Site", icon="fa fa-edit", category_icon='fa fa-edit', category='Logistic') 
 appbuilder.add_view(AreaView, name="Area", icon="fa fa-edit", category_icon='fa fa-edit', category='Logistic') 
 appbuilder.add_view(SectionView, name="Section", icon="fa fa-edit", category_icon='fa fa-edit', category='Logistic') 
@@ -737,9 +752,14 @@ appbuilder.add_view(TypeView, name="Type", icon="fa fa-edit", category_icon='fa 
 appbuilder.add_view(GroupView, name="Group", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
 appbuilder.add_view(ProjectView, name="Project", icon="fa fa-edit", category_icon='fa fa-edit', category='Settings') 
 
+appbuilder.add_view(
+    AdmFilesModelView, "File List", icon="fa-table", category_icon='fa fa-edit', category="GPS-GTF"
+) 
+
 appbuilder.add_view_no_menu(Export)
-appbuilder.add_link('Export','/export/endlife/approval','fa fa-edit','Endlife for Approval (GTF-GPS-COR-24036)','Export','fa fa-edit')
-appbuilder.add_link('Export','/export/endlife/docs','fa fa-edit','Endlife Documents','Export','fa fa-edit')
+appbuilder.add_link('Export','/export/endlife/approval','fa fa-edit','GTF-GPS-COR-24036-01 Records Destruction Form','Export','fa fa-edit')
+appbuilder.add_link('Export','/export/db/docs','fa fa-edit','GTF-GPS-COR-24034-01 Archival Records Storage Form','Export','fa fa-edit')
+appbuilder.add_link('Export','/export/endlife/docs','fa fa-edit','Endlife Records','Export','fa fa-edit')
 
 appbuilder.add_view_no_menu(GroupView)
 appbuilder.add_view_no_menu(TypeView)
@@ -772,7 +792,8 @@ from .helpers import update_request_by,import_new_documents,strip_box_code, proj
 from .helpers import client_from_prj_note
 #project_mass_color()
 db.create_all() 
-#load_master_3A() 
+#
+# load_master_3A() 
 #load_master_30K() 
 #update_endlife()  
 #update_date2()

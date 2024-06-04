@@ -12,6 +12,52 @@ def read_csv():
 from openpyxl import load_workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
+def export_db():
+    try:
+        records = db.session.query(Volume).all() # filter only active, exclude x - not found site
+        wb = load_workbook('app/GTF-GPS/GTF-GPS-COR-24034-01 Archival Records Storage Form_English.xlsx')
+        ws = wb.active
+        row_count = 0
+        for el in records:
+            row_count +=1
+            new_row = [
+                
+                el.box.name, 
+                el.box.section.area.site.city,
+                el.box.section.area.site.country,
+                el.group.name,
+                el.type.name,
+                el.type.retention_code,
+                el.type.description,
+                el.date_start,
+                el.date_end,
+                el.project.code,
+                el.project.name,
+                el.name,
+                el.type.activation_on, 
+                el.activation_date,
+                el.type.retention_days,
+                el.endlife_date,
+                el.type.security_class,
+                el.account_number,
+                #el.order_number,
+                el.box.section.area.site.name,
+                #el.box.section.area.name,
+                #el.request_by,
+                #el.request_on,
+                #el.box.section.name
+                ]
+            ws.append(new_row)
+            
+        wb.save('app/xlsx/export_db.xlsx')    
+        #b = BytesIO(open(outfile,'rb'))
+            #outfile.seek(0)
+            #outfile.close()
+            
+        return send_file('xlsx/export_db.xlsx', as_attachment=True, download_name='GTF-GPS-COR-24034-01 Archival Records Storage Form_English.xlsx')
+    except Exception as e:
+        flash('254 Export Error:', e)
+        return False
 
 def exportexcel(query):
     try:
@@ -439,7 +485,7 @@ def load_master_3A():
 
     for row in ws.iter_rows(min_row=3):
         try:
-            s_date = activation_date(row[11].value or 10)
+            #s_date = activation_date(row[11].value or 10)
             
             count += 1
             box_id = row[0].value
@@ -449,15 +495,15 @@ def load_master_3A():
             codice = row[4].value or 'ToBeDefined'
             periodo_cons = row[5].value
             descrizione_code = row[6].value or 'ToBeDefined'
-            date_start = row[7].value or s_date
-            date_end = row[8].value or s_date
+            date_start = row[7].value 
+            date_end = row[8].value 
             progetto = row[9].value or 'ToBeDefined'
             nome_progetto = row[10].value or 'ToBeDefined'
             description = row[11].value or 'ToBeDefined'
             rif_attivazione = row[12].value or None
-            data_attivazione = row[13].value or s_date# date_end + 1 gg
+            data_attivazione = row[13].value # date_end + 1 gg
             gg_conservazione = row[14].value or None
-            data_distruzione = row[15].value or s_date# data_attivazione + gg_conservazione
+            data_distruzione = row[15].value # data_attivazione + gg_conservazione
             livello_sicurezza = row[16].value or 'ToBeDefined'
             
             numero_conto = row[17].value or None
@@ -1551,31 +1597,29 @@ def chart_to_csv(title,param):
 
 def import_new_documents():
     
-    wb = load_workbook('app/xlsx/master_6.xlsx', data_only=True)
+    wb = load_workbook('app/xlsx/new_box2024.xlsx', data_only=True)
     ws = wb.active
     count_match = 0
     count_new = 0
     count_tot = 0
-    errors = []
+    found = []
     
 
     for row in ws.iter_rows(min_row=3):
         print(row[0].value)
         count_tot += 1
-        site = db.session.query(Site).filter(Site.name == row[19].value).first()
-        area = db.session.query(Area).filter(Area.name == row[20].value).first()
-        section = db.session.query(Section).filter(Section.name == row[23].value).first() 
+        
         box = db.session.query(Box).filter(Box.name == row[0].value).first()
         
         if box:
-            print('BOX Exist, position:',box.section.id == section.id)
+            found.append(box)
             count_match += 1 
-            print(box.name,repr(box.section.name.strip()), repr(str(row[23].value).strip()))
+            
             
         if box is None:
             count_new += 1
-            print('BOX ASSENTE',row[0].value)
-    
+            
+    print(found)
     print('Tot:', count_tot,'Count Match',count_match, 'New:', count_new)
     
     
@@ -1691,7 +1735,7 @@ def to_destroy_export():
         print(new_row)
         ws.append(new_row)
     wb.save('app/xlsx/ADM_GTF-GPS-COR-24036-01b.xlsx')
-    return send_file('xlsx/ADM_GTF-GPS-COR-24036-01.xlsx', as_attachment=True, download_name='ADM_GTF-GPS-COR-24036-01.xlsx')
+    return send_file('xlsx/ADM_GTF-GPS-COR-24036-01.xlsx', as_attachment=True, download_name='GTF-GPS-COR-24036-01 Records Destruction Form.xlsx')
 
 
 def client_from_prj_note(prj_id):

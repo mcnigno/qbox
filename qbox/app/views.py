@@ -58,6 +58,8 @@ class AdmFilesModelView(ModelView):
     edit_columns = ["file", "description"]
     list_columns = ["file_name", "description", "download"]
     show_columns = ["file_name", "description", "download"]
+    
+    list_title = "GPS-GTF File List"
 
 class Export(BaseView):
     route_base = '/export'

@@ -761,7 +761,7 @@ appbuilder.add_view(
 appbuilder.add_view_no_menu(Export)
 appbuilder.add_link('Export','/export/endlife/approval','fa fa-edit','GTF-GPS-COR-24036-01 Records Destruction Form','Export','fa fa-edit')
 appbuilder.add_link('Export','/export/db/docs','fa fa-edit','GTF-GPS-COR-24034-01 Archival Records Storage Form','Export','fa fa-edit')
-appbuilder.add_link('Export','/export/endlife/docs','fa fa-edit','Endlife Records','Export','fa fa-edit')
+appbuilder.add_link('Export','/export/endlife/docs','fa fa-edit','WorkBook Endlife Records','Export','fa fa-edit')
 
 appbuilder.add_view_no_menu(GroupView)
 appbuilder.add_view_no_menu(TypeView)

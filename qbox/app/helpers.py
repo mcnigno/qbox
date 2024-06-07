@@ -1703,7 +1703,7 @@ def project_detail():
     
     
 def to_destroy_export():
-    wb = load_workbook('app/xlsx/GTF-GPS-COR-24036-01.xlsx')
+    wb = load_workbook('app/xlsx/GTF-GPS-COR-24036-01-B.xlsx')
     ws = wb.active
     count = 0
     count_found = 0

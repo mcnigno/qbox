@@ -394,7 +394,11 @@ class TypeView(ModelView):
     show_columns = ['id', 'name', 'retention_code', 'retention_days','description','activation_on', 'security_class']
     edit_columns = ['name', 'retention_code', 'retention_days','description']
     
-    list_title = 'Document Type'
+    list_title = 'Record Type'
+    label_columns = {
+        'name': 'Record Series',
+        'description': 'Record Title'
+    }
     
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
     def muldelete(self, items):

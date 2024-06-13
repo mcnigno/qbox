@@ -222,3 +222,8 @@ class Move(AuditMixin, Model):
     
     def last_change(self) -> str:
         return date_csm(self.changed_on)
+    
+    def status_icon(self):
+        if self.status:
+            return Markup('<i class="fa-solid fa-right-long"></i>')
+        return Markup('<i class="fa-solid fa-left-long"></i>') 

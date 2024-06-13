@@ -405,10 +405,15 @@ class TypeView(ModelView):
 
 class MoveView(ModelView):
     datamodel = SQLAInterface(Move)
-    list_columns = ['last_change', 'name','volume']
+    list_columns = ['last_change', 'name','volume','status_icon']
     add_columns = ['volume','name']
-    show_columns = ['id','last_change', 'name', 'volume', 'status']
-    edit_columns = ['name', 'status']
+    show_columns = ['id','last_change', 'name', 'volume', 'status_icon']
+    edit_columns = ['name']
+    
+    list_title = 'Exchange'
+    label_columns = {
+        'status_icon': 'Pos'
+    }
     
     def pre_add(self, item):
         print()

@@ -24,7 +24,7 @@ CSRF_ENABLED = True
 # GLOBALS FOR APP Builder
 # ------------------------------
 # Uncomment to setup Your App name
-APP_NAME = "Qbox"
+APP_NAME = "ADM"
 
 # Uncomment to setup Setup an App icon
 APP_ICON = "/static/img/Q_logo.png" 

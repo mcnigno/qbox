@@ -1702,12 +1702,12 @@ def project_detail():
     print('Count:',count,'Found:',count_found)
     
     
-def to_destroy_export():
+def to_destroy_export(query):
     wb = load_workbook('app/xlsx/GTF-GPS-COR-24036-01-B.xlsx')
     ws = wb.active
     count = 0
     count_found = 0
-    docs = db.session.query(Volume).filter(Volume.endlife_date < datetime.today()).all()
+    docs = query
     print(len(docs))
     client_name = ''
     project_title = ''
@@ -1735,7 +1735,7 @@ def to_destroy_export():
         print(new_row)
         ws.append(new_row)
     wb.save('app/xlsx/ADM_GTF-GPS-COR-24036-01b.xlsx')
-    return send_file('xlsx/ADM_GTF-GPS-COR-24036-01.xlsx', as_attachment=True, download_name='GTF-GPS-COR-24036-01 Records Destruction Form.xlsx')
+    return send_file('xlsx/ADM_GTF-GPS-COR-24036-01b.xlsx', as_attachment=True, download_name='GTF-GPS-COR-24036-01 Records Destruction Form.xlsx')
 
 
 def client_from_prj_note(prj_id):

@@ -468,7 +468,7 @@ class VolumeProView(ModelView):
     list_columns = ['project.code', 'name','group']
     add_columns = ['box','project','type','group', 'name','date_start','date_end','request_by','request_on','available','active']
     show_columns = ['box','box.section.area.site','box.section.area','box.section','project.account','project', 'type', 'group', 'name','request_by','request_on','date_start','date_end','activation_date','endlife_date','available','active']
-    edit_columns = ['box','project','type','group', 'name','date_start','date_end','activation_date','request_by','request_on','available','active'] 
+    edit_columns = ['box','project','type','group', 'name','date_start','date_end','activation_date','endlife_date','request_by','request_on','available','active'] 
     
     
     label_columns = {

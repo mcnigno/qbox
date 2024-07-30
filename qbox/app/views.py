@@ -588,29 +588,36 @@ class BoxViewPro(ModelView):
     }
     
     search_exclude_columns = ['box.id','box.name']
-    def pre_add(self, item):
-        print()
-        print()
-        print('*********** PRE ADD ON BOX PRO VIEW')
-        box = db.session.query(Box).filter(Box.name == item.name).first()
-        if box:
-                next_box = db.session.query(Box).order_by(cast(Box.name,Numeric).desc()).first()
-                next_box = int(next_box.name) + 1 
-                raise Exception(f'The box {item.name} already exist. Next Box: {next_box}')
-                #return abort(404, description="This Box Already Exist.")
-                print(url_for('BoxView.show', pk=str(box.id)))
-                #flash('This BOX already Exist','info')
-                #return super().show(box.id)
-                    
-        #return redirect(url_for('BoxView.show', pk=str(box.id)))
-        #return super().pre_add(item)
+    '''
+    def prefill_form(self, form, pk):
+        next_box = db.session.query(Box).order_by(cast(Box.name,Numeric).desc()).first()
+        next_box = int(next_box.name) + 1 
+        form.code.data = next_box
+        return super().prefill_form(form, pk)
+    '''
+    @expose("/add", methods=["GET", "POST"])
+    @has_access
+    def add(self):
+        widget = self._add()
+        if not widget:
+            return self.post_add_redirect()
+        else:
+            next_box = db.session.query(Box).order_by(cast(Box.name,Numeric).desc()).first()
+            next_box = int(next_box.name) + 1 
+            flash(f'Next Box: {next_box}', category='info')
+            return self.render_template(
+                self.add_template, title=self.add_title, widgets=widget
+            )
+            
+     
+        
 
 
 
 
 class BoxView(ModelView):
     datamodel = SQLAInterface(Box)
-    list_columns = ['name','section.area.site','section.area' ,'active']
+    list_columns = ['id','name','section.area.site','section.area' ,'active']
     add_columns = ['section','name','note']
     show_columns = ['id', 'name','section.area.site','section.area' , 'section','active']
     edit_columns = ['name', 'section','active','note']
@@ -628,8 +635,8 @@ class BoxView(ModelView):
         'section.area': 'Area',
         'section.area.site': 'Site'
     }
-    
-    search_exclude_columns = ['box.id','box.name']
+    search_columns = ['id','name']
+    #search_exclude_columns = ['box.id','box.name']
     base_permissions = ['can_show','can_list']
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
     def muldelete(self, items):

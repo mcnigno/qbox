@@ -97,17 +97,18 @@ class Section(AuditMixin, Model):
     def box_count(self):
         session = object_session(self)
         return session.query(Box).filter(Box.section_id == self.id).count()
-   
-        
-    
+
+
+
     
 class Box(AuditMixin, Model):
     id = Column(Integer, primary_key=True)
-    name = Column(String(100), nullable = False, )
+    name = Column(String(100), nullable = False, unique=True)
     section_id = Column(Integer, ForeignKey('section.id'))
     section = relationship(Section, backref='Boxes')
     active = Column(Boolean, default=True)
     note = Column(Text)
+    
     
     def __repr__(self) -> str:
         return self.name

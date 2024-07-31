@@ -392,9 +392,10 @@ class GroupView(ModelView):
 class TypeView(ModelView):
     datamodel = SQLAInterface(Type)
     list_columns = ['id', 'name', 'retention_code','description', 'retention_days','doc_count']
-    add_columns = ['account','name']
+    add_columns = ['account','name','retention_code', 'retention_days','description','activation_on', 'security_class']
     show_columns = ['id', 'name', 'retention_code', 'retention_days','description','activation_on', 'security_class']
-    edit_columns = ['name', 'retention_code', 'retention_days','description']
+    edit_columns = ['name', 'retention_code', 'retention_days','description'] 
+    
     
     list_title = 'Record Type'
     label_columns = {

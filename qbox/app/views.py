@@ -630,7 +630,7 @@ class BoxView(ModelView):
     
     base_order = ('name','desc')
     
-    base_permissions = ['can_show','can_list']
+    base_permissions = ['can_show','can_list','can_edit']  
     label_columns = {
         'name': 'Code', 
         'section.area': 'Area',
@@ -638,7 +638,7 @@ class BoxView(ModelView):
     }
     search_columns = ['id','name']
     #search_exclude_columns = ['box.id','box.name']
-    base_permissions = ['can_show','can_list']
+    #base_permissions = ['can_show','can_list']
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)
     def muldelete(self, items):
         self.datamodel.delete_all(items)

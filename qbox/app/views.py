@@ -588,7 +588,7 @@ class BoxViewPro(ModelView):
         'section.area.site': 'Site'
     }
     
-    search_exclude_columns = ['box.id','box.name']
+    search_exclude_columns = ['box.id','box.name','created_on']
     '''
     def prefill_form(self, form, pk):
         next_box = db.session.query(Box).order_by(cast(Box.name,Numeric).desc()).first()
@@ -636,7 +636,7 @@ class BoxView(ModelView):
         'section.area': 'Area',
         'section.area.site': 'Site'
     }
-    search_columns = ['id','name']
+    search_columns = ['id','name','created_on']
     #search_exclude_columns = ['box.id','box.name']
     #base_permissions = ['can_show','can_list']
     @action("muldelete", "Delete", "Delete all Really?", "fa-rocket", single=False)

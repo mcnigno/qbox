@@ -65,7 +65,7 @@ def exportexcel(query):
         if len(records) > 15000:
             flash("Limit of 15K reached: " + str(len(records)),'info')
             return False
-        wb = load_workbook('app/xlsx/Export.xlsx')
+        wb = load_workbook('app/xlsx/Export_2.xlsx')
         ws = wb.active
         row_count = 0
         for el in records:
@@ -1703,7 +1703,7 @@ def project_detail():
     
     
 def to_destroy_export(query):
-    wb = load_workbook('app/xlsx/GTF-GPS-COR-24036-01-B.xlsx')
+    wb = load_workbook('app/xlsx/GTF-GPS-COR-24036-01-B_2.xlsx')
     ws = wb.active
     count = 0
     count_found = 0

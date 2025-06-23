@@ -74,7 +74,7 @@ class Export(BaseView):
     @expose('/endlife/docs') 
     @has_access
     def endlife(self):
-        query = db.session.query(Volume).filter(Volume.endlife_date < datetime.today()).all()
+        #query = db.session.query(Volume).filter(Volume.endlife_date < datetime.today()).all()
         query = db.session.query(Volume).filter(Volume.endlife_date < datetime.today()).all()
         return exportexcel(query)
     

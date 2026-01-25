@@ -693,7 +693,7 @@ class AreaView(ModelView):
 class SiteView(ModelView):
     datamodel = SQLAInterface(Site)
     list_columns = ['id', 'name', 'box_count']
-    add_columns = ['account','name']
+    add_columns = ['account','name','country','city','address']
     show_columns = ['id', 'name']
     edit_columns = ['name']
     

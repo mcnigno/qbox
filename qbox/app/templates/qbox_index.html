@@ -40,7 +40,17 @@
                                   hx-target="#index-tabledata" 
                                   hx-swap="innerHTML"
                                   hx-trigger="load, click">
-              <i class="fa-solid fa-chart-column"></i> Due Date
+              <i class="fa-solid fa-chart-column"></i> Doc Due Date
+            </button>
+          </div>
+
+          <div class="col-sm-3 ">
+            <button type="button" class="btn btn-primary btn-chart" 
+                                  hx-get="/chart/box_duedate" 
+                                  hx-target="#index-tabledata" 
+                                  hx-swap="innerHTML"
+                                  hx-trigger="load, click">
+              <i class="fa-solid fa-chart-column"></i> Box Due Date
             </button>
           </div>
           

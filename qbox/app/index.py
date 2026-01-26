@@ -10,7 +10,7 @@ from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from config import SQLALCHEMY_DATABASE_URI
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, distinct
 from flask import flash, redirect, request
 from datetime import datetime
  
@@ -181,6 +181,68 @@ class QboxIndexView(IndexView):
         #flash('144 Error Exporting Due DATE:' + str(e),'warning')
         return redirect(self.get_redirect())
     
+    # BOX DUEDATE CHART
+    @expose("/chart/box_duedate")
+    def chart_box_duedate(self):
+      print('*+++++*** *** CHART BOX DUEDATE FUNCTION +++++++')
+      
+      try:
+          session = get_session()
+          box_endlife = session.query(func.year(Volume.endlife_date), func.count(distinct(Volume.box_id)), 
+              ).group_by(func.year(Volume.endlife_date)
+              ).all()
+              
+          all_box_count = session.query(Box).count()
+          
+          endlife_box_count = session.query(
+                                                func.count(distinct(Volume.box_id))
+                                            ).filter(
+                                                Volume.endlife_date < datetime.today()
+                                            ).scalar()
+          print('endlife box count:', endlife_box_count) 
+              
+          box_endlife_labels = [x[0] for x in box_endlife]
+          box_endlife_data = [x[1] for x in box_endlife]
+          box_endlife_chart_data = {
+            'labels': box_endlife_labels,
+            'datasets': [{
+              'label': 'Boxes by endlife',
+              'data': box_endlife_data,
+              'hoverOffset': 4,
+              'backgroundColor': '#ff6384' 
+            }]
+          }
+
+          box_endlife_status_chart = {
+            'labels': ['Actual Boxes', 'Endlife Boxes'],
+              'datasets': [{
+                'label': 'Boxes Status',
+                'data': [all_box_count-endlife_box_count, endlife_box_count],
+                'hoverOffset': 4,
+              }]
+          }
+
+          session.close()
+        
+          #self.update_redirect()
+          
+          return self.render_template('box_duedate_chart.html', 
+                                    appbuilder=self.appbuilder,
+                                    all_box_count=all_box_count,
+                                    endlife_box_count=endlife_box_count,
+                                    box_endlife_chart_data=box_endlife_chart_data,
+                                    box_endlife_status_chart=box_endlife_status_chart)
+      except Exception as e:
+        print('')
+        print('***************')
+        print('EXception:',e)
+        
+        session.rollback()
+        session.close()
+        #flash('144 Error Exporting Due DATE:' + str(e),'warning')
+        return redirect(self.get_redirect())
+
+
     @expose("/chart/site")
     def chart_site(self):
       try:

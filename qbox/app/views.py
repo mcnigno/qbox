@@ -49,6 +49,7 @@ def month_last_day(d):
 # Endpoint per gestire la richiesta con parametro dalla URL
 from .helpers import chart_to_csv, to_destroy_export, exportexcel, export_db
 from flask import url_for
+from openpyxl import Workbook
 
 class AdmFilesModelView(ModelView):
     datamodel = SQLAInterface(AdmFiles)
@@ -77,6 +78,54 @@ class Export(BaseView):
         #query = db.session.query(Volume).filter(Volume.endlife_date < datetime.today()).all()
         query = db.session.query(Volume).filter(Volume.endlife_date < datetime.today()).all()
         return exportexcel(query)
+    
+    @expose('/endlife/boxs') 
+    @has_access
+    def endlife_boxs(self):
+        # 1. Esecuzione della query SQLAlchemy
+        results = db.session.query(
+            Box.name.label('box_code'),
+            Section.name.label('section'),
+            Area.name.label('area'),
+            Site.name.label('site')
+        ).select_from(Volume) \
+        .join(Box, Volume.box_id == Box.id) \
+        .join(Section, Box.section_id == Section.id) \
+        .join(Area, Section.area_id == Area.id) \
+        .join(Site, Area.site_id == Site.id) \
+        .group_by(Box.id, Box.name, Section.name, Area.name, Site.name) \
+        .having(func.max(Volume.endlife_date) < datetime.today()) \
+        .all()
+
+        # 2. Creazione del file Excel con openpyxl
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Box Scaduti"
+
+        # Aggiunta intestazioni
+        headers = ["Codice Box", "Sezione", "Area", "Sito"]
+        ws.append(headers)
+
+        # Aggiunta dati dalla query
+        for row in results:
+            ws.append([row.box_code, row.section, row.area, row.site])
+
+        # 3. Salvataggio in un buffer di memoria (BytesIO)
+        excel_file = BytesIO()
+        wb.save(excel_file)
+        excel_file.seek(0)  # Riporta il puntatore all'inizio del file
+
+        # 4. Generazione del nome file dinamico
+        today_str = datetime.today().strftime("%d-%m-%Y")
+        filename = f"EndLife Boxes {today_str}.xlsx"
+
+        # 5. Invio del file come attachment
+        return send_file(
+            excel_file,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=filename
+        )
     
     @expose('/db/docs') 
     @has_access
@@ -780,7 +829,8 @@ appbuilder.add_view(
 appbuilder.add_view_no_menu(Export)
 appbuilder.add_link('Export','/export/endlife/approval','fa fa-edit','GTF-GPS-COR-24036-01 Records Destruction Form','Export','fa fa-edit')
 appbuilder.add_link('Export','/export/db/docs','fa fa-edit','GTF-GPS-COR-24034-01 Archival Records Storage Form','Export','fa fa-edit')
-appbuilder.add_link('Export','/export/endlife/docs','fa fa-edit','WorkBook Endlife Records','Export','fa fa-edit')
+appbuilder.add_link('Export','/export/endlife/docs','fa fa-edit','WorkBook Endlife Documents','Export','fa fa-edit')
+appbuilder.add_link('Export','/export/endlife/boxs','fa fa-edit','WorkBook Endlife Boxs','Export','fa fa-edit')
 
 appbuilder.add_view_no_menu(GroupView)
 appbuilder.add_view_no_menu(TypeView)

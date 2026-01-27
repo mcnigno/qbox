@@ -1,8 +1,8 @@
 <div id="index-tabledata">
 <div class="row-chart">
 
-    <div class="col-sm-6 chart-container duedate-chart" style="position: relative;height:800px; width:100%">
-      <canvas id="box_duedateChart"></canvas>
+    <div class="col-sm-6 chart-container duedate-chart" style="position: relative; height: 800px; width: 100%; overflow: hidden; box-sizing: border-box;">
+      <canvas id="box_duedateChart" width="800" height="460" style="display: block;"></canvas>
       
     </div>
     <div class="col-sm-6 chart-container duedateStatus-chart" style="position: relative;height:300px; width:300px">
@@ -16,71 +16,73 @@
   
   </div>
 
-</div>
-
 
 
 
   <script>
        
-    var ctx2 = document.getElementById('box_duedateChart');
-    var data = {{ box_endlife_chart_data | tojson | safe }};
+    setTimeout(() => {
+      var ctx2 = document.getElementById('box_duedateChart');
+      var data = {{ box_endlife_chart_data | tojson | safe }};
+      
+      if (md) {
+          md.destroy();
+          console.log('md group data destroyed!');
+        }
     
-    if (md) {
-        md.destroy();
-        console.log('md group data destroyed!');
-      }
-  
-    var md = new Chart(ctx2, {
-      type: 'bar',
-      data: data,
-      options: {
-        onClick: (event, elements, chart) => {
-          const i = elements[0].index;
+      var md = new Chart(ctx2, {
+        type: 'bar',
+        data: data,
+        options: {
+          responsive: false,
+          maintainAspectRatio: false,
+          onClick: (event, elements, chart) => {
+            const i = elements[0].index;
+            
+            if (elements[0]) {            
+               const i = elements[0].index;
+               const di = elements[0].datasetIndex;
+               //alert(chart.data.labels[i] + ': ' + chart.data.datasets[di].label);
+               //document.getElementById('tag-id').innerHTML = '<div hx-get="/dashboard/type/'+chart.data.labels[i] +'" hx-trigger="load">'+ i +' data</div>';
+               //htmx.process(document.getElementById('tag-id'));
+               var label = chart.data.labels[i];
+               window.open(`/volumeview/list/?_flt_1_endlife_date=${label}-01-01&_flt_2_endlife_date=${label}-12-31#`,'_blank');
+               ///window.open(`/dashboard/chart/year/${label}`,'_blank');
+    
+            }
+          },
+          plugins: {
+    
+            legend: {
+                display: true,
+                color: 'white',
+                labels: {
+                  color: 'white'
+                }
+            },
+            
           
-          if (elements[0]) {            
-             const i = elements[0].index;
-             const di = elements[0].datasetIndex;
-             //alert(chart.data.labels[i] + ': ' + chart.data.datasets[di].label);
-             //document.getElementById('tag-id').innerHTML = '<div hx-get="/dashboard/type/'+chart.data.labels[i] +'" hx-trigger="load">'+ i +' data</div>';
-             //htmx.process(document.getElementById('tag-id'));
-             var label = chart.data.labels[i];
-             window.open(`/volumeview/list/?_flt_1_endlife_date=${label}-01-01&_flt_2_endlife_date=${label}-12-31#`,'_blank');
-             ///window.open(`/dashboard/chart/year/${label}`,'_blank');
-  
-          }
-        },
-        plugins: {
-  
-          legend: {
-              display: true,
-              color: 'white',
-              labels: {
+          },
+          scales: {
+            x: {
+              stacked: false,
+              ticks: {
                 color: 'white'
               }
-          },
-          
-        
-        },
-        scales: {
-          x: {
-            stacked: false,
-            ticks: {
-              color: 'white'
+    
+            },
+            y: {
+              stacked: false,
+              beginAtZero: true,
+              ticks: {
+                color: 'white'
+              }
+              
             }
-  
-          },
-          y: {
-            stacked: false,
-            beginAtZero: true,
-            ticks: {
-              color: 'white'
-            }
-            
           }
         }
-      }
-    });
+      });
+    }, 100);
   
   </script>
 

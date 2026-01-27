@@ -1,8 +1,8 @@
 <div id="index-tabledata">
 <div class="row-chart">
 
-    <div class="col-sm-6 chart-container duedate-chart" style="position: relative;height:800px; width:100%">
-      <canvas id="duedateChart"></canvas>
+    <div class="col-sm-6 chart-container duedate-chart" style="position: relative; height: 800px; width: 100%; overflow: hidden; box-sizing: border-box;">
+      <canvas id="duedateChart" width="800" height="460" style="display: block;"></canvas>
       
     </div>
     <div class="col-sm-6 chart-container duedateStatus-chart" style="position: relative;height:300px; width:300px">
@@ -35,6 +35,8 @@
       type: 'bar',
       data: data,
       options: {
+        responsive: false,
+        maintainAspectRatio: false,
         onClick: (event, elements, chart) => {
           const i = elements[0].index;
           

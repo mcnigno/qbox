@@ -10,9 +10,9 @@ from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from config import SQLALCHEMY_DATABASE_URI
-from sqlalchemy import func, or_, distinct
+from sqlalchemy import func, or_, distinct, case, literal_column
 from flask import flash, redirect, request
-from datetime import datetime
+from datetime import datetime, date
  
 
 
@@ -188,17 +188,42 @@ class QboxIndexView(IndexView):
       
       try:
           session = get_session()
+          '''
           box_endlife = session.query(func.year(Volume.endlife_date), func.count(distinct(Volume.box_id)), 
               ).group_by(func.year(Volume.endlife_date)
               ).all()
-              
+          ''' 
+          # 1. Subquery: Trova l'anno di scadenza massimo per ogni singolo box
+          subq = session.query(
+              Volume.box_id,
+              func.max(func.year(Volume.endlife_date)).label('box_expiration_year')
+          ).group_by(Volume.box_id).subquery()
+
+          # 2. Query principale: Conta quanti box scadono in ogni anno
+          box_endlife = session.query(
+              subq.c.box_expiration_year,
+              func.count(subq.c.box_id)
+          ).group_by(
+              subq.c.box_expiration_year
+          ).order_by(
+              subq.c.box_expiration_year
+          ).all() 
+
           all_box_count = session.query(Box).count()
           
+          # 1. Subquery: calcola la data di scadenza massima (l'ultima) per ogni box
+          subq = session.query(
+              Volume.box_id,
+              func.max(Volume.endlife_date).label('last_expiration')
+          ).group_by(Volume.box_id).subquery()
+
+          # 2. Query principale: conta i box la cui 'last_expiration' è inferiore o uguale a oggi
           endlife_box_count = session.query(
-                                                func.count(distinct(Volume.box_id))
-                                            ).filter(
-                                                Volume.endlife_date < datetime.today()
-                                            ).scalar()
+              func.count(subq.c.box_id)
+          ).filter(
+              subq.c.last_expiration <= date.today()
+          ).scalar() # Restituisce direttamente il numero intero
+          
           print('endlife box count:', endlife_box_count) 
               
           box_endlife_labels = [x[0] for x in box_endlife]

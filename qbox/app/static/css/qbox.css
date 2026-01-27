@@ -55,8 +55,7 @@
 .jumbotron.index-box{
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0; 
-    background-color: #e2e2e2;
-    background-image: url('../img/background-012.jpeg');
+    background-color: #172f45;
     background-repeat: round;
     background-size: cover;
     padding: 0;
@@ -78,8 +77,8 @@ img.qlogo-img{
 }
 span#basic-addon1{
     text-align: left;
-    background: #00000094;
-    color: #ffffff;
+    background: #154b7b;
+    color: #feb64e;
     min-width: 110px;
     border: 1px;
 }
@@ -135,24 +134,27 @@ span#basic-addon1{
 }
 
 .btn-chart{
-    background-color: #009587;
-    border-color: #009587;
+    margin-top: 20px;
+    background-color: #173045;
+    border-color: #173045;
     color: #ffffff;
     min-width: 130px;
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
 }
 .btn-chart >i{
     color: #ffc977;
     margin-right: 5px;
 }
 input#prj_input.form-control{
-    text-transform: uppercase;
+    
     background-color: #FFFFFB;
     color: #000000;
-    max-width: 190px;
-    min-width: 144px;
+    
+    min-width: 234px;
 }
 input#doc_input.form-control{
-    text-transform: uppercase;
+    
     background-color: #FFFFFB;
     color: #000000;
     min-width: 290px;
@@ -162,10 +164,10 @@ input#doc_input.form-control{
 }
 .search-tabulator{
     float: inline-start;
-    padding-left: 31px;
-    margin: -31px;
+    padding-left: 193px;
+    margin: -383px;
     max-width: 520px;
-    margin-top: 115px;
+    margin-top: 108px;
 }
 .chart-container.container {
     margin-left: 75px;

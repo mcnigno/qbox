@@ -7,9 +7,10 @@
     </div>
     <div class="col-sm-6 chart-container duedateStatus-chart" style="position: relative;height:300px; width:300px">
       <canvas id="box_duedateStatusChart"></canvas>
-        <div style="text-align: center; margin-top:25px">
-          <h4>Actual  Box: {{all_box_count}}</h4>
-          <h4>Endlife Box: {{endlife_box_count}}</h4>
+        <div style="text-align: left; margin-top:25px">
+          <h5 ><span class="label label-default label-total">Total: &nbsp;&nbsp; </span>  <span class="label label-default value-total">{{ all_box_count}}</span> </h5>
+          <h5><span class="label label-default label-actual">Actual: </span>  <span class="label label-default value-actual">{{ all_box_count-endlife_box_count}}</span></h5>
+          <h5><span class="label label-default label-endlife">Endlife:</span>  <span class="label label-default value-endlife">{{ endlife_box_count}}</span></h5>
         </div>
     </div>
   

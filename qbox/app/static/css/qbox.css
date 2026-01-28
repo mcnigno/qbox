@@ -234,3 +234,23 @@ input#doc_input.form-control{
 .fa-left-long{
     color: #009587;
 }
+.label-total{
+    background-color: #73b019;
+    color: white;
+    margin-right: 12px;
+}
+.label-actual{
+    background-color: #37a2eb;
+    color: white;
+    margin-right: 12px;
+}
+.label-endlife{
+    background-color: #ff6384;
+    color: white;
+    margin-right: 10px;
+}
+.value-total, .value-actual, .value-endlife{
+    background: #173045;
+    font-size: 8pt;
+    
+}

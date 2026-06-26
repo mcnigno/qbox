@@ -6,3 +6,5 @@ app.db
 env
 venv
 *.sublime*
+app/xlsx/export_db.xlsx
+app/xlsx/boxes_without_volumes.csv

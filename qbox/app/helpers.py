@@ -12,7 +12,87 @@ def read_csv():
 from openpyxl import load_workbook
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
-def export_db():
+def export_db(self):
+    try:
+        records = db.session.query(Volume).all()
+
+        wb = load_workbook(
+            'app/GTF-GPS/GTF-GPS-COR-24034-01 Archival Records Storage Form_English.xlsx'
+        )
+        ws = wb.active
+
+        skipped_rows = []
+        exported_rows = 0
+
+        for el in records:
+            try:
+                new_row = [
+                    el.box.name,
+                    el.box.section.area.site.city,
+                    el.box.section.area.site.country,
+                    el.group.name,
+                    el.type.name,
+                    el.type.retention_code,
+                    el.type.description,
+                    el.date_start,
+                    el.date_end,
+                    el.project.code,
+                    el.project.name,
+                    el.name,
+                    el.type.activation_on,
+                    el.activation_date,
+                    el.type.retention_days,
+                    el.endlife_date,
+                    el.type.security_class,
+                    el.account_number,
+                    el.box.section.area.site.name,
+                ]
+
+                ws.append(new_row)
+                exported_rows += 1
+
+            except Exception as row_error:
+                box_name = getattr(getattr(el, "box", None), "name", None)
+                volume_name = getattr(el, "name", None)
+
+                skipped_rows.append({
+                    "volume_id": getattr(el, "id", None),
+                    "volume_name": volume_name,
+                    "box_name": box_name,
+                    "error": str(row_error),
+                })
+
+                continue
+
+        output_path = 'xlsx/export_db.xlsx' 
+        wb.save(output_path)
+
+        print("\n--- DB EXPORT REPORT ---")
+        print(f"Exported rows: {exported_rows}")
+        print(f"Skipped rows: {len(skipped_rows)}")
+
+        if skipped_rows:
+            print("\n--- SKIPPED ROWS ---")
+            for item in skipped_rows:
+                print(
+                    f"Volume ID: {item['volume_id']} | "
+                    f"Volume: {item['volume_name']} | "
+                    f"Box: {item['box_name']} | "
+                    f"Problem: {item['error']}"
+                )
+
+        return send_file(
+            output_path,
+            as_attachment=True,
+            download_name='GTF-GPS-COR-24034-01 Archival Records Storage Form_English.xlsx'
+        )
+
+    except Exception as e:
+        print(f"Export fatal error: {e}")
+        flash(f"254 Export Error: {str(e)}", "danger")
+        return redirect(self.get_redirect())
+"""
+def export_db(self):
     try:
         records = db.session.query(Volume).all() # filter only active, exclude x - not found site
         wb = load_workbook('app/GTF-GPS/GTF-GPS-COR-24034-01 Archival Records Storage Form_English.xlsx')
@@ -54,11 +134,12 @@ def export_db():
             #outfile.seek(0)
             #outfile.close()
             
-        return send_file('xlsx/export_db.xlsx', as_attachment=True, download_name='GTF-GPS-COR-24034-01 Archival Records Storage Form_English.xlsx')
+        return send_file('app/xlsx/export_db.xlsx', as_attachment=True, download_name='GTF-GPS-COR-24034-01 Archival Records Storage Form_English.xlsx')
     except Exception as e:
-        flash('254 Export Error:', e)
-        return False
-
+        print(e)
+        flash(f"254 Export Error: {str(e)}","danger")
+        return redirect(self.get_redirect())
+"""
 def exportexcel(query):
     try:
         records = query

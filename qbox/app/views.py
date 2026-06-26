@@ -126,11 +126,24 @@ class Export(BaseView):
             as_attachment=True,
             download_name=filename
         )
-    
+    """
     @expose('/db/docs') 
     @has_access
     def db_docs(self):
-        return export_db()
+        return export_db(self)
+
+    """
+    @expose('/db/docs')
+    @has_access
+    def db_docs(self):
+        try:
+            return export_db(self)
+        except Exception as e:
+            print(f"DB export failed: {str(e)}")
+            #current_app.logger.exception("DB export failed")
+            
+            flash(f"254 Export Error: {str(e)}", "danger")
+            return redirect(self.get_redirect())
         
 
 

@@ -64,7 +64,7 @@ def export_db(self):
 
                 continue
 
-        output_path = 'xlsx/export_db.xlsx' 
+        output_path = 'app/xlsx/export_db.xlsx' 
         wb.save(output_path)
 
         print("\n--- DB EXPORT REPORT ---")
@@ -80,7 +80,7 @@ def export_db(self):
                     f"Box: {item['box_name']} | "
                     f"Problem: {item['error']}"
                 )
-
+        output_path = 'xlsx/export_db.xlsx'
         return send_file(
             output_path,
             as_attachment=True,

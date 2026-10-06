@@ -222,76 +222,80 @@ def main() -> int:
                     f"area_id={section.area_id}"
                 )
 
-            boxes_to_modify: list[Box] = []
+            box_ids_to_modify: list[int] = []
             affected_box_ids: list[int] = []
             not_found_names: list[str] = []
-            ambiguous_boxes: list[tuple[str, list[Box]]] = []
+            ambiguous_boxes: list[tuple[str, list[Any]]] = []
             classification_errors: list[str] = []
             current_section_distribution: Counter[int | None] = Counter()
-            override_records = {
-                box.id: box
-                for box in db.session.query(Box)
-                .filter(Box.id.in_(list(BOX_ID_OVERRIDES.values())))
-                .all()
-            }
-            if args.verbose:
-                print("\nBOX CHECK")
-            for name in unique_names:
-                matching_boxes = (
-                    db.session.query(Box)
-                    .filter(Box.name == name)
-                    .order_by(Box.id)
+            with db.session.no_autoflush:
+                override_records = {
+                    row.id: row
+                    for row in db.session.query(Box.id, Box.name, Box.section_id)
+                    .filter(Box.id.in_(list(BOX_ID_OVERRIDES.values())))
                     .all()
-                )
+                }
+                if args.verbose:
+                    print("\nBOX CHECK")
+                for name in unique_names:
+                    matching_boxes = (
+                        db.session.query(Box.id, Box.name, Box.section_id)
+                        .filter(Box.name == name)
+                        .order_by(Box.id)
+                        .all()
+                    )
 
-                if name in BOX_ID_OVERRIDES:
-                    override_id = BOX_ID_OVERRIDES[name]
-                    override_box = override_records.get(override_id)
-                    if override_box is None:
-                        summary["errors"] += 1
-                        classification_errors.append(
-                            f"name={name!r}: override Box.id={override_id} does not exist"
-                        )
+                    if name in BOX_ID_OVERRIDES:
+                        override_id = BOX_ID_OVERRIDES[name]
+                        override_box = override_records.get(override_id)
+                        if override_box is None:
+                            summary["errors"] += 1
+                            classification_errors.append(
+                                f"name={name!r}: override Box.id={override_id} "
+                                "does not exist"
+                            )
+                            continue
+                        if override_box.name != name:
+                            summary["errors"] += 1
+                            classification_errors.append(
+                                f"name={name!r}: override Box.id={override_id} has "
+                                f"Box.name={override_box.name!r}"
+                            )
+                            continue
+                        box_row = override_box
+                        if args.verbose:
+                            print(
+                                f"  OVERRIDE | name={name!r} | "
+                                f"selected_id={box_row.id} | "
+                                f"database_matches={len(matching_boxes)}"
+                            )
+                    elif not matching_boxes:
+                        summary["not_found"] += 1
+                        not_found_names.append(name)
                         continue
-                    if override_box.name != name:
-                        summary["errors"] += 1
-                        classification_errors.append(
-                            f"name={name!r}: override Box.id={override_id} has "
-                            f"Box.name={override_box.name!r}"
-                        )
+                    elif len(matching_boxes) > 1:
+                        summary["ambiguous"] += 1
+                        ambiguous_boxes.append((name, matching_boxes))
                         continue
-                    box = override_box
+                    else:
+                        box_row = matching_boxes[0]
+
+                    affected_box_ids.append(box_row.id)
+                    if box_row.section_id == SECTION_ID:
+                        summary["already_correct"] += 1
+                        status = "ALREADY CORRECT"
+                    else:
+                        summary["to_modify"] += 1
+                        box_ids_to_modify.append(box_row.id)
+                        current_section_distribution[box_row.section_id] += 1
+                        status = "TO MODIFY"
                     if args.verbose:
                         print(
-                            f"  OVERRIDE | name={name!r} | selected_id={box.id} | "
-                            f"database_matches={len(matching_boxes)}"
+                            f"  {status} | name={box_row.name!r} | "
+                            f"id={box_row.id} | "
+                            f"current_section_id={box_row.section_id} | "
+                            f"target_section_id={SECTION_ID}"
                         )
-                elif not matching_boxes:
-                    summary["not_found"] += 1
-                    not_found_names.append(name)
-                    continue
-                elif len(matching_boxes) > 1:
-                    summary["ambiguous"] += 1
-                    ambiguous_boxes.append((name, matching_boxes))
-                    continue
-                else:
-                    box = matching_boxes[0]
-
-                affected_box_ids.append(box.id)
-                if box.section_id == SECTION_ID:
-                    summary["already_correct"] += 1
-                    status = "ALREADY CORRECT"
-                else:
-                    summary["to_modify"] += 1
-                    boxes_to_modify.append(box)
-                    current_section_distribution[box.section_id] += 1
-                    status = "TO MODIFY"
-                if args.verbose:
-                    print(
-                        f"  {status} | name={box.name!r} | id={box.id} | "
-                        f"current_section_id={box.section_id} | "
-                        f"target_section_id={SECTION_ID}"
-                    )
 
             if not_found_names:
                 print(f"\nNOT FOUND / SKIPPED BOXES: {len(not_found_names)}")
@@ -400,9 +404,37 @@ def main() -> int:
                     db.session.add(section)
                     db.session.flush()
 
+                with db.session.no_autoflush:
+                    boxes_to_modify = (
+                        db.session.query(Box)
+                        .filter(Box.id.in_(box_ids_to_modify))
+                        .all()
+                    )
+
+                loaded_box_ids = {box.id for box in boxes_to_modify}
+                expected_box_ids = set(box_ids_to_modify)
+                if loaded_box_ids != expected_box_ids:
+                    missing_ids = sorted(expected_box_ids - loaded_box_ids)
+                    raise RuntimeError(
+                        f"could not reload all Box records selected for update; "
+                        f"missing IDs: {missing_ids}"
+                    )
+
                 for box in boxes_to_modify:
                     box.section_id = SECTION_ID
                     box.changed_by_fk = ADMIN_USER_ID
+
+                invalid_box_ids = [
+                    box.id
+                    for box in boxes_to_modify
+                    if box.section_id != SECTION_ID
+                    or box.changed_by_fk != ADMIN_USER_ID
+                ]
+                if invalid_box_ids:
+                    raise RuntimeError(
+                        "in-memory Box update validation failed for IDs: "
+                        f"{sorted(invalid_box_ids)}"
+                    )
 
                 db.session.flush()
                 volume_after = (

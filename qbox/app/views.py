@@ -47,7 +47,13 @@ def month_last_day(d):
 
 """
 # Endpoint per gestire la richiesta con parametro dalla URL
-from .helpers import chart_to_csv, to_destroy_export, exportexcel, export_db
+from .helpers import (
+    chart_to_csv,
+    to_destroy_export,
+    outside_bucap_export,
+    exportexcel,
+    export_db,
+)
 from flask import url_for
 from openpyxl import Workbook
 
@@ -71,6 +77,17 @@ class Export(BaseView):
     def approval(self):
         query = db.session.query(Volume).filter(Volume.endlife_date < datetime.today()).all()
         return to_destroy_export(query) 
+
+    @expose('/bucap/outside')
+    @has_access
+    def outside_bucap(self):
+        query = (
+            db.session.query(Volume)
+            .join(Box, Volume.box_id == Box.id)
+            .filter(Box.section_id != 26684)
+            .all()
+        )
+        return outside_bucap_export(query)
     
     @expose('/endlife/docs') 
     @has_access
@@ -841,6 +858,7 @@ appbuilder.add_view(
 
 appbuilder.add_view_no_menu(Export)
 appbuilder.add_link('Export','/export/endlife/approval','fa fa-edit','GTF-GPS-COR-24036-01 Records Destruction Form','Export','fa fa-edit')
+appbuilder.add_link('Export','/export/bucap/outside','fa fa-edit','Records Outside BUCAP','Export','fa fa-edit')
 appbuilder.add_link('Export','/export/db/docs','fa fa-edit','GTF-GPS-COR-24034-01 Archival Records Storage Form','Export','fa fa-edit')
 appbuilder.add_link('Export','/export/endlife/docs','fa fa-edit','WorkBook Endlife Documents','Export','fa fa-edit')
 appbuilder.add_link('Export','/export/endlife/boxs','fa fa-edit','WorkBook Endlife Boxes','Export','fa fa-edit')

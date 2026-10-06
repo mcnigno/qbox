@@ -1783,49 +1783,78 @@ def project_detail():
     print('Count:',count,'Found:',count_found)
     
     
-def to_destroy_export(query):
+def _value_or_blank(obj, *attributes):
+    """Return a nested attribute value, or an empty Excel cell for missing data."""
+    value = obj
+    for attribute in attributes:
+        if value is None:
+            return ''
+        value = getattr(value, attribute, None)
+    return '' if value is None else value
+
+
+def _client_from_note(note):
+    if not note:
+        return ''
+    for line in note.splitlines():
+        if ':' not in line:
+            continue
+        label, value = line.split(':', 1)
+        if label == 'Client name':
+            return value.strip()
+    return ''
+
+
+def records_destruction_form_export(query, output_filename, download_name):
+    """Populate the existing records-destruction workbook template."""
     wb = load_workbook('app/xlsx/GTF-GPS-COR-24036-01-B_2.xlsx')
     ws = wb.active
-    count = 0
-    count_found = 0
     docs = query
-    print(len(docs))
-    client_name = ''
-    project_title = ''
     system = ''
     volume = ''
     path = ''
     for doc in docs:
-        client_name = client_from_prj_note(doc.project.id)
-        new_row = [doc.project.account.name, 
-                   doc.project.code, 
-                   client_name, 
-                   doc.project.name, 
-                   doc.group.name,
+        new_row = [_value_or_blank(doc, 'project', 'account', 'name'),
+                   _value_or_blank(doc, 'project', 'code'),
+                   _client_from_note(_value_or_blank(doc, 'project', 'note')),
+                   _value_or_blank(doc, 'project', 'name'),
+                   _value_or_blank(doc, 'group', 'name'),
                    system,
                    volume,
                    path,
-                   doc.box.name,
-                   doc.type.description,
-                   doc.type.name,
-                   doc.type.retention_code,
-                   doc.date_start,
-                   doc.date_end,
-                   doc.activation_date
-                   ]
-        print(new_row)
+                   _value_or_blank(doc, 'box', 'name'),
+                   _value_or_blank(doc, 'type', 'description'),
+                   _value_or_blank(doc, 'type', 'name'),
+                   _value_or_blank(doc, 'type', 'retention_code'),
+                   _value_or_blank(doc, 'date_start'),
+                   _value_or_blank(doc, 'date_end'),
+                   _value_or_blank(doc, 'activation_date')
+        ]
         ws.append(new_row)
-    wb.save('app/xlsx/ADM_GTF-GPS-COR-24036-01b.xlsx')
-    return send_file('xlsx/ADM_GTF-GPS-COR-24036-01b.xlsx', as_attachment=True, download_name='GTF-GPS-COR-24036-01 Records Destruction Form.xlsx')
+    wb.save('app/xlsx/' + output_filename)
+    return send_file(
+        'xlsx/' + output_filename,
+        as_attachment=True,
+        download_name=download_name,
+    )
+
+
+def to_destroy_export(query):
+    return records_destruction_form_export(
+        query,
+        'ADM_GTF-GPS-COR-24036-01b.xlsx',
+        'GTF-GPS-COR-24036-01 Records Destruction Form.xlsx',
+    )
+
+
+def outside_bucap_export(query):
+    return records_destruction_form_export(
+        query,
+        'ADM_Records_Outside_BUCAP.xlsx',
+        'Records Outside BUCAP.xlsx',
+    )
 
 
 def client_from_prj_note(prj_id):
     prj = db.session.query(Project).get(prj_id)
-    try:
-        for line in prj.note.splitlines():
-            label, value = line.split(':',1)
-            if label == 'Client name':
-                return value.strip() 
-    except Exception as e:
-        print(e)
-        return ''
+    return _client_from_note(_value_or_blank(prj, 'note'))

@@ -22,6 +22,7 @@ from app.models import Area, Box, Section, Site, Volume
 SITE_ID = 52
 AREA_ID = 61
 SECTION_ID = 26684
+ADMIN_USER_ID = 1
 DEFAULT_INPUT = Path(__file__).resolve().parent / "bucap.xlsx"
 EXPECTED_HEADER = "BARCODE LABEL NO."
 
@@ -401,6 +402,7 @@ def main() -> int:
 
                 for box in boxes_to_modify:
                     box.section_id = SECTION_ID
+                    box.changed_by_fk = ADMIN_USER_ID
 
                 db.session.flush()
                 volume_after = (

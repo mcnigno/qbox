@@ -22,7 +22,7 @@ from app.models import Area, Box, Section, Site, Volume
 SITE_ID = 52
 AREA_ID = 61
 SECTION_ID = 26684
-ADMIN_USER_ID = 1
+ADMIN_USER_ID = "1"
 DEFAULT_INPUT = Path(__file__).resolve().parent / "bucap.xlsx"
 EXPECTED_HEADER = "BARCODE LABEL NO."
 

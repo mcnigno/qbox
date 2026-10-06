@@ -4,8 +4,8 @@ GENERAL COUNTS
 Data rows examined: 21550
 Empty barcode cells: 0
 Unique barcodes: 21335
-FOUND: 20169
-NOT_FOUND: 1165
+FOUND: 20452
+NOT_FOUND: 882
 AMBIGUOUS: 1
 NOT_FOUND present in alternative fields: 0
 
@@ -14,11 +14,10 @@ Fields: Volume.name, Volume.order_number, Volume.account_number
 No alternative exact matches found.
 
 NOT_FOUND NUMERIC PATTERNS
-Numerically convertible: 1163
+Numerically convertible: 880
 Numeric minimum: 12865
 Numeric maximum: 74138
 First 2 digits distribution:
-  63: 283
   61: 187
   47: 136
   45: 107
@@ -36,7 +35,7 @@ First 2 digits distribution:
   14: 8
   33: 8
   39: 8
-  62: 8
+  62: 7
   43: 6
   22: 5
   13: 5
@@ -50,12 +49,10 @@ First 2 digits distribution:
   12: 2
   74: 2
   44: 1
+  63: 1
   42: 1
   30: 1
 First 3 digits distribution:
-  630: 99
-  632: 97
-  631: 69
   616: 66
   478: 62
   617: 60
@@ -70,7 +67,6 @@ First 3 digits distribution:
   477: 27
   340: 20
   592: 20
-  633: 18
   593: 14
   200: 13
   456: 13
@@ -80,8 +76,8 @@ First 3 digits distribution:
   206: 9
   311: 9
   615: 8
-  620: 8
   601: 8
+  620: 7
   595: 7
   169: 6
   202: 6
@@ -155,6 +151,7 @@ First 3 digits distribution:
   143: 1
   158: 1
   139: 1
+  633: 1
   429: 1
   391: 1
   167: 1
@@ -168,19 +165,14 @@ First 3 digits distribution:
   596: 1
   155: 1
 Consecutive numeric ranges (gap <= 1):
-  63019-63138 (120 values)
   61592-61665 (74 values)
-  63173-63234 (62 values)
-  63237-63290 (54 values)
   45251-45291 (41 values)
   61757-61791 (35 values)
   45353-45383 (31 values)
   61407-61434 (28 values)
-  63292-63317 (26 values)
   60750-60773 (24 values)
   47846-47864 (19 values)
   34053-34070 (18 values)
-  63000-63017 (18 values)
   26160-26175 (16 values)
   45305-45318 (14 values)
   31873-31885 (13 values)
@@ -198,10 +190,10 @@ Consecutive numeric ranges (gap <= 1):
   47687-47694 (8 values)
   47867-47874 (8 values)
   61717-61724 (8 values)
-  62025-62032 (8 values)
   45676-45682 (7 values)
   47822-47828 (7 values)
   61452-61458 (7 values)
+  62026-62032 (7 values)
   26190-26195 (6 values)
   31852-31857 (6 values)
   31866-31871 (6 values)
@@ -234,7 +226,6 @@ Consecutive numeric ranges (gap <= 1):
   47722-47724 (3 values)
   59274-59276 (3 values)
   60104-60106 (3 values)
-  63140-63142 (3 values)
   13140-13141 (2 values)
   17220-17221 (2 values)
   17236-17237 (2 values)
@@ -268,9 +259,11 @@ Consecutive numeric ranges (gap <= 1):
   59271-59272 (2 values)
   59281-59282 (2 values)
   59312-59313 (2 values)
+  59318-59319 (2 values)
+  59331-59332 (2 values)
+  59553-59554 (2 values)
+  60083-60084 (2 values)
 Nearby numeric clusters (gap <= 5):
-  63173-63317 (142 values)
-  63000-63142 (141 values)
   61592-61665 (74 values)
   45251-45318 (62 values)
   47819-47888 (62 values)
@@ -293,7 +286,7 @@ Nearby numeric clusters (gap <= 5):
   20000-20015 (8 values)
   60104-60112 (8 values)
   61717-61724 (8 values)
-  62025-62032 (8 values)
+  62026-62032 (7 values)
   39330-39335 (6 values)
   47740-47746 (6 values)
   47752-47757 (6 values)
@@ -342,44 +335,29 @@ Nearby numeric clusters (gap <= 5):
 
 EXCEL ROW POSITION PATTERNS
 Consecutive NOT_FOUND row blocks (gap <= 1):
-  16240-16278 (39 values)
-  16304-16333 (30 values)
-  8309-8335 (27 values)
-  17914-17938 (25 values)
   18665-18689 (25 values)
   18639-18662 (24 values)
-  17802-17823 (22 values)
-  6977-6994 (18 values)
   18618-18633 (16 values)
   20064-20077 (14 values)
-  6692-6704 (13 values)
   18606-18614 (9 values)
-  18429-18436 (8 values)
-  18472-18479 (8 values)
   19227-19234 (8 values)
   14002-14007 (6 values)
-  15120-15125 (6 values)
   19258-19263 (6 values)
   21006-21011 (6 values)
   10336-10340 (5 values)
   18589-18593 (5 values)
   5478-5481 (4 values)
   6847-6850 (4 values)
+  8325-8328 (4 values)
   11306-11309 (4 values)
-  13024-13027 (4 values)
+  16304-16307 (4 values)
   18261-18264 (4 values)
-  18465-18468 (4 values)
-  18484-18487 (4 values)
   20823-20826 (4 values)
   4771-4773 (3 values)
   6789-6791 (3 values)
   6807-6809 (3 values)
   6812-6814 (3 values)
-  8132-8134 (3 values)
-  8747-8749 (3 values)
   11536-11538 (3 values)
-  16540-16542 (3 values)
-  16801-16803 (3 values)
   17835-17837 (3 values)
   18187-18189 (3 values)
   19216-19218 (3 values)
@@ -391,27 +369,18 @@ Consecutive NOT_FOUND row blocks (gap <= 1):
   3073-3074 (2 values)
   4444-4445 (2 values)
   4474-4475 (2 values)
-  5348-5349 (2 values)
-  5361-5362 (2 values)
   5620-5621 (2 values)
   6499-6500 (2 values)
   6754-6755 (2 values)
   6838-6839 (2 values)
   6842-6843 (2 values)
-  6926-6927 (2 values)
+  6979-6980 (2 values)
   7535-7536 (2 values)
   7864-7865 (2 values)
   8446-8447 (2 values)
   8580-8581 (2 values)
   8893-8894 (2 values)
-  9238-9239 (2 values)
-  9287-9288 (2 values)
-  9345-9346 (2 values)
-  9748-9749 (2 values)
   9804-9805 (2 values)
-  9821-9822 (2 values)
-  9840-9841 (2 values)
-  10135-10136 (2 values)
   10302-10303 (2 values)
   10980-10981 (2 values)
   11146-11147 (2 values)
@@ -419,11 +388,8 @@ Consecutive NOT_FOUND row blocks (gap <= 1):
   12078-12079 (2 values)
   12339-12340 (2 values)
   12562-12563 (2 values)
-  12694-12695 (2 values)
-  12791-12792 (2 values)
   12892-12893 (2 values)
   12917-12918 (2 values)
-  13021-13022 (2 values)
   13045-13046 (2 values)
   13819-13820 (2 values)
   13918-13919 (2 values)
@@ -435,62 +401,66 @@ Consecutive NOT_FOUND row blocks (gap <= 1):
   13997-13998 (2 values)
   14993-14994 (2 values)
   15113-15114 (2 values)
+  15124-15125 (2 values)
   15131-15132 (2 values)
   15137-15138 (2 values)
   15647-15648 (2 values)
   16301-16302 (2 values)
-  16696-16697 (2 values)
   16704-16705 (2 values)
-  16952-16953 (2 values)
+  17325-17326 (2 values)
+  17330-17331 (2 values)
+  17337-17338 (2 values)
+  17342-17343 (2 values)
+  17369-17370 (2 values)
+  17376-17377 (2 values)
+  17379-17380 (2 values)
+  17382-17383 (2 values)
+  17403-17404 (2 values)
+  17423-17424 (2 values)
+  17650-17651 (2 values)
+  17830-17831 (2 values)
+  17853-17854 (2 values)
+  17875-17876 (2 values)
+  17878-17879 (2 values)
+  18118-18119 (2 values)
+  18169-18170 (2 values)
+  18174-18175 (2 values)
+  18178-18179 (2 values)
+  18228-18229 (2 values)
+  18257-18258 (2 values)
+  18376-18377 (2 values)
+  18382-18383 (2 values)
+  18584-18585 (2 values)
+  18595-18596 (2 values)
+  18962-18963 (2 values)
+  19223-19224 (2 values)
+  19659-19660 (2 values)
 Nearby NOT_FOUND row groups (gap <= 3):
   18639-18689 (49 values)
-  16240-16281 (40 values)
-  16301-16336 (33 values)
   18601-18635 (29 values)
-  8309-8335 (27 values)
-  17914-17938 (25 values)
-  17802-17823 (22 values)
-  6977-6994 (18 values)
-  17140-17173 (17 values)
   20064-20077 (14 values)
-  6692-6704 (13 values)
-  18423-18439 (13 values)
   18580-18596 (12 values)
   18257-18274 (11 values)
   20998-21011 (11 values)
   19223-19234 (10 values)
   19256-19267 (10 values)
-  9333-9348 (9 values)
   13045-13060 (9 values)
-  17108-17124 (9 values)
-  8123-8136 (8 values)
-  15231-15246 (8 values)
-  18472-18479 (8 values)
-  16796-16807 (7 values)
   17655-17667 (7 values)
-  5348-5357 (6 values)
-  5361-5370 (6 values)
   6807-6814 (6 values)
-  6876-6887 (6 values)
-  13021-13027 (6 values)
   14002-14007 (6 values)
-  15120-15125 (6 values)
+  16301-16307 (6 values)
   17376-17383 (6 values)
   17621-17632 (6 values)
-  18484-18490 (6 values)
   10336-10340 (5 values)
   11534-11540 (5 values)
-  15540-15548 (5 values)
-  16536-16542 (5 values)
   16776-16784 (5 values)
-  18463-18468 (5 values)
   5478-5481 (4 values)
   6496-6503 (4 values)
   6838-6843 (4 values)
   6847-6850 (4 values)
   7862-7867 (4 values)
+  8325-8328 (4 values)
   9125-9131 (4 values)
-  9282-9288 (4 values)
   11306-11309 (4 values)
   13987-13991 (4 values)
   17835-17840 (4 values)
@@ -506,17 +476,11 @@ Nearby NOT_FOUND row groups (gap <= 3):
   6789-6791 (3 values)
   7483-7487 (3 values)
   7516-7520 (3 values)
-  8577-8581 (3 values)
-  8592-8597 (3 values)
-  8747-8749 (3 values)
-  9821-9824 (3 values)
+  9282-9287 (3 values)
   12915-12918 (3 values)
   14096-14101 (3 values)
   14993-14996 (3 values)
   16788-16792 (3 values)
-  16996-17000 (3 values)
-  17132-17136 (3 values)
-  17224-17228 (3 values)
   17342-17345 (3 values)
   17606-17611 (3 values)
   18187-18189 (3 values)
@@ -540,17 +504,46 @@ Nearby NOT_FOUND row groups (gap <= 3):
   6221-6223 (2 values)
   6431-6434 (2 values)
   6516-6518 (2 values)
-  6579-6581 (2 values)
   6668-6671 (2 values)
   6754-6755 (2 values)
+  6979-6980 (2 values)
+  7494-7496 (2 values)
+  7535-7536 (2 values)
+  7910-7912 (2 values)
+  8446-8447 (2 values)
+  8580-8581 (2 values)
+  8585-8587 (2 values)
+  8747-8749 (2 values)
+  8893-8894 (2 values)
+  8954-8956 (2 values)
+  9151-9153 (2 values)
+  9206-9208 (2 values)
+  9566-9569 (2 values)
+  9804-9805 (2 values)
+  9822-9824 (2 values)
+  9931-9933 (2 values)
+  10302-10303 (2 values)
+  10618-10620 (2 values)
+  10980-10981 (2 values)
+  11146-11147 (2 values)
+  11806-11809 (2 values)
+  11972-11973 (2 values)
+  12078-12079 (2 values)
+  12339-12340 (2 values)
+  12562-12563 (2 values)
+  12783-12786 (2 values)
+  12892-12893 (2 values)
+  13267-13269 (2 values)
+  13819-13820 (2 values)
+  13918-13919 (2 values)
 Status transitions between adjacent data occurrences:
-  FOUND->NOT_FOUND: 869
-  NOT_FOUND->FOUND: 869
+  FOUND->NOT_FOUND: 692
+  NOT_FOUND->FOUND: 692
   FOUND->AMBIGUOUS: 1
   AMBIGUOUS->FOUND: 1
 
 FOUND VS NOT_FOUND BY EXCEL COLUMN
-Column 'SEGNATURA ARCHIVISTICA BUCAP': 21548 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
+Column 'SEGNATURA ARCHIVISTICA BUCAP': 21548 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
   '1373': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
   '1428': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
   '1526': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
@@ -566,86 +559,52 @@ Column 'SEGNATURA ARCHIVISTICA BUCAP': 21548 distinct values; FOUND occurrences=
   '1813': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
   '1919': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
   '1974': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
-Column 'CITY': 2 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  'ROME': NOT_FOUND=70, FOUND=16046, not_found_share=0.4%
-Column 'COUNTRY': 2 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  'ITALY': NOT_FOUND=70, FOUND=16046, not_found_share=0.4%
-Column 'GROUP/ DEPARTMENT': 41 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  'ENGINEERING': NOT_FOUND=70, FOUND=0, not_found_share=100.0%
-Column 'RECORD SERIES': 25 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  'PRJ010': NOT_FOUND=70, FOUND=2475, not_found_share=2.8%
-Column 'RETENTION PERIOD': 10 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  'EVT+10Y': NOT_FOUND=70, FOUND=3036, not_found_share=2.3%
-Column 'RECORDS TITLE': 25 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  'ENGINEERING ADMINISTRATION': NOT_FOUND=70, FOUND=2475, not_found_share=2.8%
-Column 'FROM DATE': 234 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  '2020-01-01T00:00:00': NOT_FOUND=70, FOUND=13, not_found_share=84.3%
-Column 'TO DATE': 253 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  '2020-12-31T00:00:00': NOT_FOUND=70, FOUND=11, not_found_share=86.4%
-Column 'PROJECT NO': 690 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  '2554': NOT_FOUND=20, FOUND=1, not_found_share=95.2%
-  '2544': NOT_FOUND=20, FOUND=115, not_found_share=14.8%
-  '2408': NOT_FOUND=12, FOUND=23, not_found_share=34.3%
-  '2376': NOT_FOUND=1, FOUND=2, not_found_share=33.3%
-  '2437': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
-  '2441': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
-  '2431': NOT_FOUND=1, FOUND=1, not_found_share=50.0%
-  '2430': NOT_FOUND=1, FOUND=10, not_found_share=9.1%
-  '2438': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
-  '2434': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
-  '2435': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
-  '2439': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
-  '2433': NOT_FOUND=1, FOUND=0, not_found_share=100.0%
-  '2440': NOT_FOUND=1, FOUND=6, not_found_share=14.3%
-Column 'PROJECT NAME': 433 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  'GRASSROOTS PHARMACEUTICAL SPECIALTIES PLANT - 1ST & 2ND PHASES': NOT_FOUND=43, FOUND=117, not_found_share=26.9%
-  'ETILENO XXI PROJECT - F.E.E.D.': NOT_FOUND=12, FOUND=23, not_found_share=34.3%
-  'PETROCARABOBO UPGRADER (200,000 BPSD)': NOT_FOUND=12, FOUND=10, not_found_share=54.5%
-  'ENGINEERING SERVICE FRAME AGREEMENT': NOT_FOUND=3, FOUND=9, not_found_share=25.0%
-Column 'DESCRIPTION': 13254 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  'AG-PG': NOT_FOUND=70, FOUND=0, not_found_share=100.0%
-Column 'RETENTION  TRIGGER': 10 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  'PROJECT CLOSED': NOT_FOUND=70, FOUND=272, not_found_share=20.5%
-Column 'TRIGGER DATE': 251 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  '2021-01-01T00:00:00': NOT_FOUND=70, FOUND=12, not_found_share=85.4%
-Column 'RETENTION DAYS': 7 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '0': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  '3650': NOT_FOUND=70, FOUND=3068, not_found_share=2.2%
-Column 'DESTRUCTION DATE': 233 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4415, not_found_share=22.0%
-  '2030-12-30T00:00:00': NOT_FOUND=70, FOUND=10, not_found_share=87.5%
-Column 'SECURITY LEVELS': 5 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1244, FOUND=4188, not_found_share=22.9%
-  'CONFIDENTIAL': NOT_FOUND=70, FOUND=768, not_found_share=8.4%
-Column 'ACCOUNT NO.': 1 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1314, FOUND=20234, not_found_share=6.1%
-Column 'WAREHOUSE LOCATION': 10 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1314, FOUND=4188, not_found_share=23.9%
-Column 'STATO PRATICA': 3 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  'PRESSO BUCAP': NOT_FOUND=1312, FOUND=20233, not_found_share=6.1%
+Column 'CITY': 2 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'COUNTRY': 2 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'GROUP/ DEPARTMENT': 41 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'RECORD SERIES': 25 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'RETENTION PERIOD': 10 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'RECORDS TITLE': 25 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'FROM DATE': 234 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'TO DATE': 253 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'PROJECT NO': 690 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'PROJECT NAME': 433 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'DESCRIPTION': 13254 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'RETENTION  TRIGGER': 10 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'TRIGGER DATE': 251 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'RETENTION DAYS': 7 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '0': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'DESTRUCTION DATE': 233 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4735, not_found_share=16.3%
+Column 'SECURITY LEVELS': 5 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4508, not_found_share=17.0%
+Column 'ACCOUNT NO.': 1 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=20624, not_found_share=4.3%
+Column 'WAREHOUSE LOCATION': 10 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=4578, not_found_share=16.8%
+Column 'STATO PRATICA': 3 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  'PRESSO BUCAP': NOT_FOUND=922, FOUND=20623, not_found_share=4.3%
   'IN CONSULTAZIONE PRESSO BECIANI ANDREA DAL 25/09/2026': NOT_FOUND=2, FOUND=0, not_found_share=100.0%
-Column 'DATA ULTIMO RIENTRO': 1 distinct values; FOUND occurrences=20234; NOT_FOUND occurrences=1314
-  '<EMPTY>': NOT_FOUND=1314, FOUND=20234, not_found_share=6.1%
+Column 'DATA ULTIMO RIENTRO': 1 distinct values; FOUND occurrences=20624; NOT_FOUND occurrences=924
+  '<EMPTY>': NOT_FOUND=924, FOUND=20624, not_found_share=4.3%
 
 AMBIGUOUS FOCUS: Box.name='60979'
 Box.id=27091; section_id=26449; Section.name='3519'; area_id=60; Area.name='AS 032'; site_id=45; Site.name='A-B'; volumes=5; Volume.name sample=" - SERVIZI GENRALI -  - CUTRONA -  -  - \n | NOTE SPESE PER CASSA | CONTRATTO SCHINDLER-RAPPORTINI ASCENSORI-ASSISTENZA TECNICA | AFFITTI PASSIVI- PARROCCHIA NATIVITA' DI MARIA SANTISSIMA | AFFITTI PASSIVI- STI SERVIZI -ALMA. EDIFICIO C2 6° PIANO E 3° PIANO"
 Box.id=29298; section_id=63; Section.name='23802'; area_id=25; Area.name='WA05'; site_id=46; Site.name='W-A-4-5-6'; volumes=0; Volume.name sample=''
 Box.id=29300; section_id=20280; Section.name='21701'; area_id=32; Area.name='WC06'; site_id=50; Site.name='W-C-6'; volumes=0; Volume.name sample=''
-Box.id=29301; section_id=34; Section.name='21270'; area_id=23; Area.name='WA06'; site_id=46; Site.name='W-A-4-5-6'; volumes=0; Volume.name sample=''
-Box.id=29303; section_id=34; Section.name='21270'; area_id=23; Area.name='WA06'; site_id=46; Site.name='W-A-4-5-6'; volumes=0; Volume.name sample=''
 Box.id=29310; section_id=34; Section.name='21270'; area_id=23; Area.name='WA06'; site_id=46; Site.name='W-A-4-5-6'; volumes=0; Volume.name sample=''
 Box.id=29326; section_id=34; Section.name='21270'; area_id=23; Area.name='WA06'; site_id=46; Site.name='W-A-4-5-6'; volumes=0; Volume.name sample=''
 Box.id=29327; section_id=34; Section.name='21270'; area_id=23; Area.name='WA06'; site_id=46; Site.name='W-A-4-5-6'; volumes=0; Volume.name sample=''

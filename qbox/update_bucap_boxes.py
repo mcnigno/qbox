@@ -25,6 +25,16 @@ SECTION_ID = 26684
 DEFAULT_INPUT = Path(__file__).resolve().parent / "bucap.xlsx"
 EXPECTED_HEADER = "BARCODE LABEL NO."
 
+# Explicitly reviewed exceptions for duplicate Box.name values in ADM.
+# The selected ID is validated against the expected name before it can be used.
+BOX_ID_OVERRIDES = {
+    "60979": 27091,
+}
+
+
+class BlockingClassificationError(RuntimeError):
+    """A barcode could not be classified safely for a database change."""
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -122,7 +132,7 @@ def print_summary(summary: dict[str, Any]) -> None:
     print(f"  Duplicate rows:        {summary['duplicates']}")
     print(f"  Already correct:       {summary['already_correct']}")
     print(f"  Boxes to modify:       {summary['to_modify']}")
-    print(f"  Boxes not found:       {summary['not_found']}")
+    print(f"  Boxes not found/skipped: {summary['not_found']}")
     print(f"  Ambiguous boxes:       {summary['ambiguous']}")
     print(f"  Errors:                {summary['errors']}")
 
@@ -215,7 +225,14 @@ def main() -> int:
             affected_box_ids: list[int] = []
             not_found_names: list[str] = []
             ambiguous_boxes: list[tuple[str, list[Box]]] = []
+            classification_errors: list[str] = []
             current_section_distribution: Counter[int | None] = Counter()
+            override_records = {
+                box.id: box
+                for box in db.session.query(Box)
+                .filter(Box.id.in_(list(BOX_ID_OVERRIDES.values())))
+                .all()
+            }
             if args.verbose:
                 print("\nBOX CHECK")
             for name in unique_names:
@@ -225,16 +242,40 @@ def main() -> int:
                     .order_by(Box.id)
                     .all()
                 )
-                if not matching_boxes:
+
+                if name in BOX_ID_OVERRIDES:
+                    override_id = BOX_ID_OVERRIDES[name]
+                    override_box = override_records.get(override_id)
+                    if override_box is None:
+                        summary["errors"] += 1
+                        classification_errors.append(
+                            f"name={name!r}: override Box.id={override_id} does not exist"
+                        )
+                        continue
+                    if override_box.name != name:
+                        summary["errors"] += 1
+                        classification_errors.append(
+                            f"name={name!r}: override Box.id={override_id} has "
+                            f"Box.name={override_box.name!r}"
+                        )
+                        continue
+                    box = override_box
+                    if args.verbose:
+                        print(
+                            f"  OVERRIDE | name={name!r} | selected_id={box.id} | "
+                            f"database_matches={len(matching_boxes)}"
+                        )
+                elif not matching_boxes:
                     summary["not_found"] += 1
                     not_found_names.append(name)
                     continue
-                if len(matching_boxes) > 1:
+                elif len(matching_boxes) > 1:
                     summary["ambiguous"] += 1
                     ambiguous_boxes.append((name, matching_boxes))
                     continue
+                else:
+                    box = matching_boxes[0]
 
-                box = matching_boxes[0]
                 affected_box_ids.append(box.id)
                 if box.section_id == SECTION_ID:
                     summary["already_correct"] += 1
@@ -252,7 +293,11 @@ def main() -> int:
                     )
 
             if not_found_names:
-                print(f"\nNOT FOUND BOXES: {len(not_found_names)}")
+                print(f"\nNOT FOUND / SKIPPED BOXES: {len(not_found_names)}")
+                print(
+                    "  Informational only - these boxes do not exist in ADM "
+                    "and will be skipped."
+                )
                 if args.verbose:
                     for name in not_found_names:
                         print(f"  {name}")
@@ -272,6 +317,11 @@ def main() -> int:
                     )
                     print(f"  name={name!r} -> {details}")
 
+            if classification_errors:
+                print("\nBLOCKING CLASSIFICATION ERRORS")
+                for error in classification_errors:
+                    print(f"  {error}")
+
             if args.verbose:
                 print("\nCURRENT SECTION DISTRIBUTION")
                 if current_section_distribution:
@@ -288,12 +338,19 @@ def main() -> int:
                 + summary["to_modify"]
                 + summary["not_found"]
                 + summary["ambiguous"]
+                + summary["errors"]
             )
             if classified != summary["valid"]:
                 raise RuntimeError(
                     "internal classification check failed: already correct + "
-                    "to modify + not found + ambiguous does not equal valid "
-                    "unique boxes"
+                    "to modify + not found/skipped + ambiguous + errors does "
+                    "not equal valid unique boxes"
+                )
+
+            if classification_errors:
+                raise BlockingClassificationError(
+                    f"commit safety validation failed for "
+                    f"{len(classification_errors)} barcode(s)"
                 )
 
             # This snapshot makes the invariant explicit: moving a Box must not
@@ -308,11 +365,10 @@ def main() -> int:
             )
 
             if commit_mode:
-                if summary["not_found"] or summary["ambiguous"]:
+                if summary["ambiguous"]:
                     raise RuntimeError(
-                        f"commit refused: {summary['not_found']} unique Box.name "
-                        "value(s) were not found and "
-                        f"{summary['ambiguous']} were ambiguous"
+                        f"commit refused: {summary['ambiguous']} unique "
+                        "Box.name value(s) were ambiguous"
                     )
 
                 # Mutations start only after the complete hierarchy and Box analysis.
@@ -371,7 +427,8 @@ def main() -> int:
                 print("\nDRY RUN: no changes were committed.")
 
     except Exception as exc:
-        summary["errors"] += 1
+        if not isinstance(exc, BlockingClassificationError):
+            summary["errors"] += 1
         try:
             with app.app_context():
                 db.session.rollback()
